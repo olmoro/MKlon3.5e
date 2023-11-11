@@ -1,6 +1,6 @@
 /*
-  project:      MKLON3.5v7
-  pcb:          cpu3.5v7a  
+  project:      MKlon3.5e
+  pcb:          cpu3.5v7a, b  
   pcb:          pow3.5v7
   display:      480*320 IC: ILI94856 + XPT2046
   driver:       SAMD21 M0 MINI
@@ -10,7 +10,7 @@
   Arduino       v0.6.230727001 Arduino for Visual Studio Code
   Espressif 32: 3.5.0 (с 4.0 не совместимо)
                 6.3.1 не совместимо
-  date:         20230905
+  date:         20231111
 */    
 
 #include "board/mboard.h"
