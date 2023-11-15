@@ -20,7 +20,12 @@ namespace ConnectFsm
 // Что будем отдавать на отображение браузеру (округляет до 0.010, потому в милли)
     MState * MExe::fsm()
     {
-        runFSBrowser( 
+    //  short v = Tools->getMilliVolt();
+    //  short i = Tools->getMilliAmper();
+    //        if(v > 15000)   {  Serial.print("\nV="); Serial.print(v);  }
+    //        if(i >  5000)   {  Serial.print("\nI="); Serial.print(i);  }
+
+        runFSBrowser(
               Tools->getMilliVolt(),        // Tools->getRealVoltage(),
               Tools->getMilliAmper(),       // Tools->getRealCurrent(),
               Board->getCelsius(),

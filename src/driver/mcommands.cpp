@@ -60,10 +60,11 @@ void MCommands::doCommand()
       case MCmd::cmd_power_stop:              doPowerStop();              break;  // 0x21
       case MCmd::cmd_power_mode:              doPowerMode();              break;  // 0x22
       case MCmd::cmd_discharge_go:            doDischargeGo();            break;  // 0x24
-      // case MCmd::cmd_power_go_mode:           doPowerGoMode();            break;  // 0x25
-//      case MCmd::cmd_voltage_adj:             doVoltageAdj();             break;  // 0x25 Регулировка напряжения
-//      case MCmd::cmd_current_adj:             doCurrentAdj();             break;  // 0x26 Регулировка тока заряда
-//      case MCmd::cmd_discurrent_adj:          doDiscurrentAdj();          break;  // 0x27 Регулировка тока разряда
+      
+      case MCmd::cmd_voltage_adj:             doVoltageAdj();             break;  // 0x25 Регулировка напряжения
+      case MCmd::cmd_current_adj:             doCurrentAdj();             break;  // 0x26 Регулировка тока заряда
+      case MCmd::cmd_discurrent_adj:          doDiscurrentAdj();          break;  // 0x27 Регулировка тока разряда
+
 //      case MCmd::cmd_power_on:            doPowerOn();          break;  // 0x28
 
         // Команды работы с измерителем напряжения 
@@ -108,8 +109,8 @@ void MCommands::doCommand()
       case MCmd::cmd_write_switch_pin:          doSwPin();                break;  // 0x54 na
       case MCmd::cmd_write_power:               doSetPower();             break;  // 0x56 na
       case MCmd::cmd_write_discharge:           doSetDischg();            break;  // 0x57 na
-      case MCmd::cmd_write_voltage:             doSetVoltage();           break;  // 0x58 na
-      case MCmd::cmd_write_current:             doSetCurrent();           break;  // 0x59 na
+//       case MCmd::cmd_write_voltage:             doSetVoltage();           break;  // 0x58 na
+//       case MCmd::cmd_write_current:             doSetCurrent();           break;  // 0x59 na
       case MCmd::cmd_write_discurrent:          doSetDiscurrent();        break;  // 0x5A na
   //   case MCmd::cmd_write_surge_compensation:  doSurgeCompensation();     break;  // 0x5B   nu
       case MCmd::cmd_write_idle_load:           doIdleLoad();             break;  // 0x5C na   
@@ -409,8 +410,8 @@ short MCommands::dataProcessing()
     case MCmd::cmd_pid_read_treaty:                              // 0x47
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 7) )
       {
-        unsigned short shift = Wake->get16(1);
-        unsigned short bits  = Wake->get16(3);
+        // unsigned short shift = Wake->get16(1);
+        // unsigned short bits  = Wake->get16(3);
         unsigned short hz    = Wake->get16(5);
           // вычисления и запись
 //        Tools->pMult = Tools->calkPMult(shift, bits);
@@ -688,6 +689,32 @@ void MCommands::doDischargeGo()
   id = Wake->replyU16( id, Tools->setpointI );
   Wake->configAsk( id, MCmd::cmd_discharge_go);
 }
+
+                      // 0x25
+void MCommands::doVoltageAdj()  
+{
+  int id = 0;
+  id = Wake->replyU16(id, Tools->setpointU);
+  Wake->configAsk(id, MCmd::cmd_voltage_adj);
+}
+
+                      // 0x26
+void MCommands::doCurrentAdj()
+{
+  int id = 0;
+  id = Wake->replyU16( id, Tools->setpointI);
+  Wake->configAsk(id, MCmd::cmd_current_adj);  
+}
+
+                      // 0x27
+void MCommands::doDiscurrentAdj()
+{
+  int id = 0;
+  id = Wake->replyU16( id, Tools->setpointD);
+  Wake->configAsk(id, MCmd::cmd_discurrent_adj);  
+}
+
+
 
 
 // // 0x28 cmd_power_on:            
@@ -983,24 +1010,24 @@ void MCommands::doSetDischg()
   Wake->configAsk( id, MCmd::cmd_write_discharge);
 }
 
-// Команда включения и поддержание заданного напряжения в мВ   0x58
-void MCommands::doSetVoltage()
-{
-  int id = 0;
-  id = Wake->replyU08( id, Tools->pidMode );  // 0x01;
-  id = Wake->replyU16( id, Tools->setpointU );
-  Wake->configAsk( id, MCmd::cmd_write_voltage);
-}
+// // Команда включения и поддержание заданного напряжения в мВ   0x58
+// void MCommands::doSetVoltage()
+// {
+//   int id = 0;
+//   id = Wake->replyU08( id, Tools->pidMode );  // 0x01;
+//   id = Wake->replyU16( id, Tools->setpointU );
+//   Wake->configAsk( id, MCmd::cmd_write_voltage);
+// }
 
-// Команда задать ток в мА и включить 0x59
-void MCommands::doSetCurrent()
-{
-  int id = 0;
-  id = Wake->replyU08( id, Tools->swOnOff );
-  id = Wake->replyU16( id, Tools->setpointI );
-  id = Wake->replyU16( id, Tools->factorI );
-  Wake->configAsk( id, MCmd::cmd_write_current);
-}
+// // Команда задать ток в мА и включить 0x59
+// void MCommands::doSetCurrent()
+// {
+//   int id = 0;
+//   id = Wake->replyU08( id, Tools->swOnOff );
+//   id = Wake->replyU16( id, Tools->setpointI );
+//   id = Wake->replyU16( id, Tools->factorI );
+//   Wake->configAsk( id, MCmd::cmd_write_current);
+// }
 
 // Команда задать код DAC или ток разряда в мА и включить    0x5A
 void MCommands::doSetDiscurrent()

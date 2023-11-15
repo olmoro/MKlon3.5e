@@ -343,12 +343,11 @@ void MTools::txPowerVGo(short spV, short spI) {txPowerMode(spV, spI, MPrj::RU);}
 
 void MTools::txPowerIGo(short spV, short spI) {txPowerMode(spV, spI, MPrj::RI);}   // 0x22
 
-void MTools::txDischargeGo(short spI)
-{
-  setpointI = spI;
-  buffCmd = MCmd::cmd_discharge_go;
-}                       
+void MTools::txDischargeGo(short spI) {setpointI = spI; buffCmd = MCmd::cmd_discharge_go;} // 0x24
 
+void MTools::txVoltageAdj(short spV) {setpointU = spV; buffCmd = MCmd::cmd_voltage_adj;}    // 0x25
+void MTools::txCurrentAdj(short spI) {setpointI = spI; buffCmd = MCmd::cmd_current_adj;}    // 0x26
+void MTools::txDiscurrentAdj(short spD) {setpointD = spD; buffCmd = MCmd::cmd_discurrent_adj;} // 0x27
 
 
 //   // 0x28
@@ -491,12 +490,12 @@ void MTools::txSetPidFrequency(unsigned short hz)
   buffCmd = MCmd::cmd_pid_write_frequency;                                                             // 0x4A Запись
 }
 
-void MTools::txSetCurrent(unsigned short val)     // 0x59
-{
-  pidMode   = MPrj::RI;
-  setpointI = val;
-  buffCmd = MCmd::cmd_write_current;              // 0x59
-}
+// void MTools::txSetCurrent(unsigned short val)     // 0x59
+// {
+//   pidMode   = MPrj::RI;
+//   setpointI = val;
+//   buffCmd = MCmd::cmd_write_current;              // 0x59
+// }
 
 
 

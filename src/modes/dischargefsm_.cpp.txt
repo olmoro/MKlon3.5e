@@ -342,8 +342,7 @@ namespace MDis
     Display->clearLine(                          2);
     Display->drawParFl(      "Max current, A :", 3,  spI, 2); 
     Display->drawParFl(      "Min voltage, V :", 4, minV, 2);
-    //Tools->txDischargeGo(spI);                                // 0x24 Команда драйверу разряжать
-    Tools->txDischargeGo(targetI);                                // 0x24 Команда драйверу разряжать
+    Tools->txDischargeGo(spI);                                // 0x24 Команда драйверу разряжать
     Display->newBtn(MDisplay::GO, MDisplay::STOP);
   }
 
@@ -357,9 +356,7 @@ namespace MDis
     {
       targetI += 50;
       if(targetI >= spI) targetI = spI;
-      // Tools->txSetDiscurrent(targetI);
-      //Tools->txDischargeGo(targetI);            // проверить
-  Tools->txDiscurrentAdj(targetI);    // 0x27
+      Tools->txSetDiscurrent(targetI);
     }
 
     switch (Display->getKey())

@@ -48,7 +48,11 @@ class MCommands
     void doPowerAuto();                 // 0x20   
     void doPowerStop();                 // 0x21
     void doPowerMode();                 // 0x22
-    void doDischargeGo();               // 0x24  
+    void doDischargeGo();               // 0x24 
+
+    void doVoltageAdj();                // 0x25  
+    void doCurrentAdj();                // 0x26  
+    void doDiscurrentAdj();             // 0x27  
 
     void doPowerOn();               // 0x28
 

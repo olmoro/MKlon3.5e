@@ -21,8 +21,11 @@ namespace MCmd
   constexpr uint8_t cmd_power_auto                = 0x20; // старт преобразователя с автоматическим выбором регулятора U и I
   constexpr uint8_t cmd_power_stop                = 0x21; // отключение ( и разряда в том числе)
   constexpr uint8_t cmd_power_mode                = 0x22; // старт с выбором режима PID-регулятора
-
   constexpr uint8_t cmd_discharge_go              = 0x24; // старт разряда с отключением преобразователя
+
+  constexpr uint8_t cmd_voltage_adj               = 0x25; // Регулировка напряжения
+  constexpr uint8_t cmd_current_adj               = 0x26; // Регулировка тока заряда
+  constexpr uint8_t cmd_discurrent_adj            = 0x27; // Регулировка тока разряда
 
 
 //  constexpr uint8_t cmd_power_on            = 0x28; // 
@@ -77,8 +80,8 @@ namespace MCmd
 
   constexpr uint8_t cmd_write_power               = 0x56; // пользоваться с осторожностью - выяснение пределов регулирования
   constexpr uint8_t cmd_write_discharge           = 0x57; // не проверена
-  constexpr uint8_t cmd_write_voltage             = 0x58; // старая, не проверена
-  constexpr uint8_t cmd_write_current             = 0x59; // старая, не проверена 
+//  constexpr uint8_t cmd_write_voltage             = 0x58; // старая, не проверена
+//  constexpr uint8_t cmd_write_current             = 0x59; // старая, не проверена 
   constexpr uint8_t cmd_write_discurrent          = 0x5A; // старая, не проверена
   constexpr uint8_t cmd_write_surge_compensation  = 0x5B; // параметры подавления всплеска напряжения na
   constexpr uint8_t cmd_write_idle_load           = 0x5C; // параметры доп.нагрузки ХХ

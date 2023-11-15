@@ -5,7 +5,7 @@
   display:      480*320 IC: ILI94856 + XPT2046
   driver:       SAMD21 M0 MINI
   C/C++:        1.17.5
-  VS:           1.81.1  1.82.2
+  VS:           1.84.2
   PIO:          v3.3.1
   Arduino       v0.6.230727001 Arduino for Visual Studio Code
   Espressif 32: 3.5.0 (с 4.0 не совместимо)
@@ -33,9 +33,6 @@ TaskHandle_t xTask_Measure;     // Измерения напряжения пи�
 TaskHandle_t xTask_Driver;      // Отправка команд драйверу SAMD21
 TaskHandle_t xTask_Connect;     // Подключения к WiFi сети
 TaskHandle_t xTask_Touch;       // Опрос активных кнопок
-
-// // Идентификаторы семафоров    // В этом проекте не используется
-// SemaphoreHandle_t tftMutex;    // Семафор вывода сообщений на дисплей
 
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
@@ -75,10 +72,6 @@ void setup()
     Connect    = new MConnect(Tools);
   #endif
 
-  // tftMutex = xSemaphoreCreateMutex();     // В этом проекте не используется
-  // if ( tftMutex == NULL )  Serial.println("Mutex can not be created");
-  // else                     Serial.print("\nm : ");   Serial.println( (int) tftMutex );
-
   // Выделение ресурсов для каждой задачи: память, приоритет, ядро.
   // Все задачи исполняются ядром 1, ядро 0 выделено для радиочастотных задач - BT и WiFi.
   #ifndef NOWIFI
@@ -104,50 +97,44 @@ void loop()
 
 // Задача подключения к WiFi сети (полностью заимствована как есть)
 #ifndef NOWIFI
-  void connectTask( void * )
+  void connectTask(void *)
   {
     while(true) {
-    //unsigned long start = millis();   // Старт таймера 
-    //Serial.print("*");
       Connect->run(); 
-      // Период вызова задачи задается в TICK'ах, TICK по умолчанию равен 1мс.
-      vTaskDelay( 10 / portTICK_PERIOD_MS );
-    // Для удовлетворения любопытства о длительности выполнения задачи - раскомментировать как и таймер.
-    //Serial.print("Autoconnect: Core "); Serial.print(xPortGetCoreID()); Serial.print(" Time = "); Serial.print(millis() - start); Serial.println(" mS");
-    // Core 1, 2...3 mS
+      vTaskDelay( 10 / portTICK_PERIOD_MS);
     }
-    vTaskDelete( NULL );
+    vTaskDelete(NULL);
   }
 #endif
 
 // Задача выдачи данных на дисплей
-void displayTask( void *pvParameters )
+void displayTask(void *pvParameters)
 {
   while(true)
   {
     const TickType_t xDelay = pdMS_TO_TICKS(125);
     Display->runDisplay( Board->getCelsius() );
-    vTaskDelay( xDelay );
+    vTaskDelay(xDelay);
   }
-  vTaskDelete( NULL );
+  vTaskDelete(NULL);
 }
 
 // Задача управления системой теплоотвода. Предполагается расширить функциональность, добавив 
 // слежение за правильностью подключения нагрузки, масштабирование тока и т.д. 
-void coolTask( void * )
+void coolTask(void *)
 {
   while (true)
   {
     Board->Supervisor->runCool();
-    vTaskDelay( 200 / portTICK_PERIOD_MS );
+    vTaskDelay( 200 / portTICK_PERIOD_MS);
   }
-  vTaskDelete( NULL );
+  vTaskDelete(NULL);
 }
 
 // 1. Задача обслуживает выбор режима работы.
 // 2. Управляет конечным автоматом выбранного режима вплоть да выхода из режима.
 // И то и другое построены как конечные автоматы (FSM).
-void mainTask ( void * )
+void mainTask (void *)
 { 
   while (true)
   {
@@ -155,42 +142,42 @@ void mainTask ( void * )
     // очереди, то эта точно по таймеру - через 0,1с.
     portTickType xLastWakeTime = xTaskGetTickCount();   // To count the amp hours
     Dispatcher->run(); 
-    vTaskDelayUntil( &xLastWakeTime, 100 / portTICK_PERIOD_MS );    // период 0,1с
+    vTaskDelayUntil( &xLastWakeTime, 100 / portTICK_PERIOD_MS);    // период 0,1с
   }
-  vTaskDelete( NULL );
+  vTaskDelete(NULL);
 }
 
 // Задача управления измерениями напряжения источника питания и датчика температуры
-void measureTask( void * )
+void measureTask(void *)
 {
   while (true)
   {
     Measure->run();
-    vTaskDelay( 100 / portTICK_PERIOD_MS );
+    vTaskDelay( 100 / portTICK_PERIOD_MS);
   }
   vTaskDelete(NULL);
 }
 
 // Отправка команд драйверу SAMD21
-void driverTask( void * )
+void driverTask(void *)
 {
   while (true)
   {
     vTaskEnterCritical(&timerMux);
     Commands->doCommand();
     vTaskExitCritical(&timerMux);
-    vTaskDelay( 75 / portTICK_PERIOD_MS );
+    vTaskDelay( 75 / portTICK_PERIOD_MS);
   }
   vTaskDelete(NULL);
 }
 
 // Задача опроса активных кнопок
-void touchTask( void * )
+void touchTask(void *)
 {
   while(true)
   {
     Display->calcKeys();
-    vTaskDelay( 50 / portTICK_PERIOD_MS );
+    vTaskDelay( 50 / portTICK_PERIOD_MS);
   }
-  vTaskDelete( NULL );
+  vTaskDelete(NULL);
 }
