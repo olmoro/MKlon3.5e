@@ -69,7 +69,8 @@
     Управление силовым блоком производится командами, причем за один вызов fsm() 
   может быть обработана только одна команда  (дабы не плодить лишние сущности 
   автор отказался от использования очередей) что может быть легко обойдено, 
-  задав vTaskDelay(). Исключения сделаны для некоторых команд.
+  задав vTaskDelay(). Исключения сделаны для некоторых команд, где такая задержка 
+  уже имеется. 
 
     Наблюдательный программист обнаружит избыточность кода, особенно в части
   конструкторов состояний при переходах от одного состояния к другому. Что-ж, 
@@ -335,15 +336,15 @@ namespace MDis
     /* Состояние разряда */
   MGo::MGo(MTools * Tools) : MState(Tools)
   {
-        targetI = 100;                                            // Начальное задание тока
+    targetI = 100;                                            // Начальное задание тока
 
 //  Display->drawLabel(        "Mode DISCHARGE", 0);
     Display->drawLabel("The process is running", 1);
     Display->clearLine(                          2);
     Display->drawParFl(      "Max current, A :", 3,  spI, 2); 
     Display->drawParFl(      "Min voltage, V :", 4, minV, 2);
-    //Tools->txDischargeGo(spI);                                // 0x24 Команда драйверу разряжать
     Tools->txDischargeGo(targetI);                                // 0x24 Команда драйверу разряжать
+    // Tools->txDischargeGo(spI);                                // 0x24 Команда драйверу разряжать
     Display->newBtn(MDisplay::GO, MDisplay::STOP);
   }
 
@@ -352,14 +353,12 @@ namespace MDis
     Tools->chargeCalculations();                  /* Подсчет отданных ампер-часов. Период 100мс. */
     if(Tools->getMilliVolt() <= minV)   return new MStop(Tools);       /* Следить за напряжением */
 
-    // Плавое увеличение тока разряда, примерно 0.5А в секунду
+    // Пример плавного увеличения тока разряда, примерно 0.5А в секунду
     if(targetI != spI)
     {
       targetI += 50;
       if(targetI >= spI) targetI = spI;
-      // Tools->txSetDiscurrent(targetI);
-      //Tools->txDischargeGo(targetI);            // проверить
-  Tools->txDiscurrentAdj(targetI);    // 0x27
+      Tools->txDiscurrentAdj(targetI);                      // 0x27 применить
     }
 
     switch (Display->getKey())
