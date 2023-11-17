@@ -16,6 +16,13 @@ namespace MPrj
   static constexpr unsigned short smooth_i_default = 1u;
   static constexpr short shift_v_default           = 0;
   static constexpr short shift_i_default           = 0;
+
+  // Параметры разряда
+  static constexpr short discurrent_default_min    = 50;
+  static constexpr short discurrent_default_max    = 5000;
+  static constexpr short voltage_off_default_min   = 50;
+  static constexpr short voltage_off_default_max   = 16200;
+
   
   // Согласованные параметры ПИД-регуляторов SAMD21 (частный случай):
   static constexpr unsigned short par_mult         = 0x0100;     // pMult
@@ -45,6 +52,9 @@ namespace MPrj
   static constexpr short nominal_v_fixed = 12000u;
   static constexpr short capacity_fixed  = 55u;
   static constexpr short tec_fixed       = 0u;
+
+
+
   // Минимальный ток заряда, "вилка" значений для разных емкостей батареи
   static constexpr short cur_min_lo      =  20u;     // Минимальный ток заряда, mA от
   static constexpr short cur_min_hi      = 200u;     // и до

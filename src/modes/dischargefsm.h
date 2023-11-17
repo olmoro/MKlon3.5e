@@ -31,9 +31,9 @@ namespace MDis
       MState * fsm() override;
     private:
         // Пределы регулирования минимального напряжения
-      static constexpr short up   = 16200u;
-      static constexpr short dn   =  1000u;
-      static constexpr short corr =    50u;  // ±correction
+      static constexpr short up   = MPrj::voltage_off_default_max;
+      static constexpr short dn   = MPrj::voltage_off_default_min;
+      static constexpr short corr = 50u;   // ±correction
 
   };
 
@@ -43,10 +43,10 @@ namespace MDis
       MSetCurrent(MTools * Tools);
       MState * fsm() override;
     private:
-        // Пределы регулирования max тока
-      static constexpr short up   = 6000u;
-      static constexpr short dn   =  200u;
-      static constexpr short corr =   50u;  // ±correction
+        // Пределы регулирования тока разряда
+      static constexpr short up   = MPrj::discurrent_default_max;
+      static constexpr short dn   = MPrj::discurrent_default_min;
+      static constexpr short corr = 50u;  // ±correction
   };
 
   class MGoTask : public MState

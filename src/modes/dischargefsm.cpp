@@ -336,15 +336,14 @@ namespace MDis
     /* Состояние разряда */
   MGo::MGo(MTools * Tools) : MState(Tools)
   {
-    targetI = 100;                                            // Начальное задание тока
+    targetI = MPrj::discurrent_default_min;   //100;                                            // Начальное задание тока
 
 //  Display->drawLabel(        "Mode DISCHARGE", 0);
     Display->drawLabel("The process is running", 1);
     Display->clearLine(                          2);
     Display->drawParFl(      "Max current, A :", 3,  spI, 2); 
     Display->drawParFl(      "Min voltage, V :", 4, minV, 2);
-    Tools->txDischargeGo(targetI);                                // 0x24 Команда драйверу разряжать
-    // Tools->txDischargeGo(spI);                                // 0x24 Команда драйверу разряжать
+    Tools->txDischargeGo(targetI);                            // 0x24 Команда драйверу разряжать
     Display->newBtn(MDisplay::GO, MDisplay::STOP);
   }
 
