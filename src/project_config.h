@@ -56,8 +56,8 @@ namespace MPrj
 
 
   // Минимальный ток заряда, "вилка" значений для разных емкостей батареи
-  static constexpr short cur_min_lo      =  20u;     // Минимальный ток заряда, mA от
-  static constexpr short cur_min_hi      = 200u;     // и до
+  static constexpr short cur_min_lo      = 720u;    // 20u;     // Минимальный ток заряда, mA от
+  static constexpr short cur_min_hi      = 1400u;    // 200u;     // и до
 
   static constexpr short max_v_fixed     = nominal_v_fixed * 2100 / 2000;
   static constexpr short min_v_fixed     = nominal_v_fixed * 1930 / 2000;
