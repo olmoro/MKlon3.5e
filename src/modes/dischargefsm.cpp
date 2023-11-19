@@ -121,7 +121,7 @@ namespace MDis
   short minV;           // Минимальное напряжение, при котором разряд прекращается, мВ
   float kp, ki, kd;     // Коэффициенты ПИД-регулятора
   static uint8_t mark;  // Номер подсвеченной строки
-  static short targetI;
+  static short target;
 
   /* Состояние "Старт", инициализация выбранного режима работы (DISCHARGE). */
   MStart::MStart(MTools *Tools) : MState(Tools)
@@ -336,14 +336,14 @@ namespace MDis
     /* Состояние разряда */
   MGo::MGo(MTools * Tools) : MState(Tools)
   {
-    targetI = MPrj::discurrent_default_min;   //100;                                            // Начальное задание тока
+    target = MPrj::discurrent_default_min;   //100;                                            // Начальное задание тока
 
 //  Display->drawLabel(        "Mode DISCHARGE", 0);
     Display->drawLabel("The process is running", 1);
     Display->clearLine(                          2);
     Display->drawParFl(      "Max current, A :", 3,  spI, 2); 
     Display->drawParFl(      "Min voltage, V :", 4, minV, 2);
-    Tools->txDischargeGo(targetI);                            // 0x24 Команда драйверу разряжать
+    Tools->txDischargeGo(target);                            // 0x24 Команда драйверу разряжать
     Display->newBtn(MDisplay::GO, MDisplay::STOP);
   }
 
@@ -353,11 +353,11 @@ namespace MDis
     if(Tools->getMilliVolt() <= minV)   return new MStop(Tools);       /* Следить за напряжением */
 
     // Пример плавного увеличения тока разряда, примерно 0.5А в секунду
-    if(targetI != spI)
+    if(target != spI)
     {
-      targetI += 50;
-      if(targetI >= spI) targetI = spI;
-      Tools->txDiscurrentAdj(targetI);                      // 0x27 применить
+      target += 50;
+      if(target >= spI) target = spI;
+      Tools->txDiscurrentAdj(target);                      // 0x27 применить
     }
 
     switch (Display->getKey())

@@ -49,6 +49,7 @@ namespace MCccv
   short voltageNom    = MPrj::nominal_v_fixed;  // Номинальное напряжение батареи, вольты 
   short capacity      = MPrj::capacity_fixed;   // Ёмкость батареи, ампер-часы
   short timeOut       = MPrj::timeout_fixed;    // Длительность заряда, часы
+  static short target;
 
   //========================================================================= MStart
     // Состояние "Старт", инициализация выбранного режима работы (CC/CV).
@@ -190,8 +191,9 @@ namespace MCccv
      Здесь задаются сетпойнты по напряжению и току. Подъем тока
      производится ПИД-регулятором.
     */ 
-    Tools->txPidClear();                // 0x44*
-    Tools->txPowerAuto(maxV, maxI);     /* 0x20*  Команда драйверу запустить ПИД-регулятор
+    Tools->txPidClear();                  // 0x44*
+    target = minI;                        // Начальное задание тока
+    Tools->txPowerAuto(maxV, target);     /* 0x20*  Команда драйверу запустить ПИД-регулятор
                                           в автоматическом режиме */
   }
 
@@ -213,6 +215,15 @@ namespace MCccv
     // Проверка напряжения и переход на поддержание напряжения.
     if(Tools->getMilliVolt() >= maxV)         return new MKeepVmax(Tools);
     
+    /* Пример плавного увеличения тока заряда, примерно 0.5А в секунду.
+    Альтернативный способ - корректировать коэффициент(ы) ПИД-регулятора. */
+    if(target != maxI)
+    {
+      target += 50;
+      if(target >= maxI) target = maxI;
+      Tools->txCurrentAdj(target);                      // 0x26 применить
+    }
+
       // Индикация фазы подъема тока не выше заданного
     Display->showDuration(Tools->getChargeTimeCounter(), MDisplay::SEC);
     Display->showAh(Tools->getAhCharge());
@@ -285,9 +296,10 @@ namespace MCccv
     Display->newBtn(MDisplay::STOP, MDisplay::NEXT);
 
     Tools->clrTimeCounter();      // Обнуляются счетчики времени
-
+        target = maxV;
       // Порог регулирования по минимальному напряжению
-    Tools->txPowerAuto(minV, maxI);        // 0x20*  Команда драйверу
+    //Tools->txPowerAuto(minV, maxI);        // 0x20*  Команда драйверу
+    Tools->txPowerAuto(target, maxI);        // 0x20*  Команда драйверу
     //Tools->txPowerAuto(minV, minI <<2);        // 0x20*  Команда драйверу
   }
 
@@ -301,6 +313,16 @@ namespace MCccv
       case MDisplay::NEXT:                  return new MStop(Tools);
       default:;
     }
+
+    // Пример плавного снижения напряжения, примерно в в секунду
+    if(target != minV)
+    {
+      target -= 20;
+      if(target <= minV) target = minV;
+      Tools->txVoltageAdj(target);                      // 0x25 применить
+    }
+
+
     // Здесь возможны проверки других условий окончания заряда
     // if( ( ... >= ... ) && ( ... <= ... ) )  { return new MStop(Tools); }
 
