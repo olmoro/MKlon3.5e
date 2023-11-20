@@ -9,9 +9,10 @@
 1. [Как это работает. Аппаратный аспект.](#hard)
 2. [Как это работает. Программный аспект](#soft)
 3. [Технические характеристики](#specifications)
-4. [Документы](#docs)
-5. [Полезные ссылки](#useful_links)
-6. [About Me](#about)
+4. [Тесты](#tests)
+5. [Документы](#docs)
+6. [Полезные ссылки](#useful_links)
+7. [About Me](#about)
 
 ***
 ![](https://github.com/olmoro/MKlon3.5v7/blob/main/documents/full/img/MKlon3.5full.png)
@@ -37,6 +38,7 @@
 - txDiscurrentAdj(spD) - Команда регулировки тока без остановки разряда.
 - txSetPidCoeff(kp, ki, kd) - Команда ввода коэффициентов ПИД-регулятора.
 - и ещё полсотни команд для настроек под аппаратную реализацию пользователя. ПО модуля разрабатывается в другом проекте, [здесь](https://github.com/olmoro/MKlon3.5e/blob/main/documents/fwMoroPid) .bin файл прошивки.
+
 [^](#menu)
 ***
 ## <p align="center">3. Технические характеристики MKlon3.5<a name="specifications"></a>
@@ -57,20 +59,21 @@
 - Micro-SD карта - на плате дисплея
 - Защита по выходу - переполюсовка, перегрузка по току, КЗ
 
+[^](#menu)
 ***
+## <p align="center">4. Тесты.<a name="tests"></a>
+[Заряд АКБ Са-Са 60Ач, старт](https://github.com/olmoro/MKlon3.5e/blob/main/documents/tests/ch_60go.png)
 
-
-
-
+[^](#menu)
 ***
-## <p align="center">4. Документация.<a name="docs"></a>
+## <p align="center">5. Документация.<a name="docs"></a>
 
 - [Схемы](https://github.com/olmoro/MKlon3.5e/tree/main/documents/sch) 
 
 
-
+[^](#menu)
 ***
-## <p align="center">8.Полезные ссылки<a name="useful_links"></a>
+## <p align="center">6.Полезные ссылки<a name="useful_links"></a>
 - [OSS](https://ru.wikipedia.org/wiki/%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D0%BE%D0%B5_%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%BD%D0%BE%D0%B5_%D0%BE%D0%B1%D0%B5%D1%81%D0%BF%D0%B5%D1%87%D0%B5%D0%BD%D0%B8%D0%B5)
 - [Протокол обмена](http://leoniv.diod.club/articles/wake/wake.html)
 - [Проекты на ESP32](https://randomnerdtutorials.com/projects-esp32/)
@@ -79,10 +82,9 @@
 - [Использование памяти в ESP32](https://dzen.ru/media/kotyara12/ispolzovanie-pamiati-v-esp32-63294a246a97da509e279eab)
 - [Резистор в цепи затвора или как делать правильно](https://habr.com/en/articles/451152/)
 
-
-В начало [^](#menu)
+[^](#menu)
 ***
-## <p align="center">9. About Me<a name="about"></a>
+## <p align="center">7. About Me<a name="about"></a>
 🚀 I'm a full stack developer urk2t@yandex.ru
 
-В начало [^](#menu)
+[^](#menu)
