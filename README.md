@@ -63,6 +63,8 @@
 ***
 ## <p align="center">4. Тесты.<a name="tests"></a>
 [Заряд АКБ Са-Са 60Ач, старт](https://github.com/olmoro/MKlon3.5e/blob/main/documents/tests/ch_60go.png)
+[Разряд максимальным током](documents/tests/dis_type.png)
+
 
 [^](#menu)
 ***
