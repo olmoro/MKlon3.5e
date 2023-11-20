@@ -65,7 +65,7 @@
 ***
 ## <p align="center">4. Документация.<a name="docs"></a>
 
-
+- [Схемы](https://github.com/olmoro/MKlon3.5e/tree/main/documents/sch) 
 
 
 
