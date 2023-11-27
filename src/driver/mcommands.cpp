@@ -52,7 +52,6 @@ void MCommands::doCommand()
       case MCmd::cmd_get_i:                   doGetI();                   break;  // 0x12 Чтение тока (мА)
       case MCmd::cmd_get_ui:                  doGetUI();                  break;  // 0x13 Чтение напряжения (мВ) и тока (мА)
       case MCmd::cmd_get_state:               doGetState();               break;  // 0x14 Чтение состояния
-      //case MCmd::cmd_get_celsius:             doGetCelsius();             break;  // 0x15 Чтение температуры радиатора
       case MCmd::cmd_ready:             doReady();             break;  // 0x15 Параметры согласованы
 
         // Команды управления
@@ -213,16 +212,16 @@ short MCommands::dataProcessing()
       else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
-    // // Ответ на команду чтения результата преобразования данных датчика температуры
-    // // всего 3 байта, включая байт ошибки
-    // case MCmd::cmd_get_celsius:
-    //   if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
-    //   {
-    //     Tools->setCelsius(Wake->get16(1));
-    //     return 0;  //Tools->setProtErr(0);
-    //   }
-    //   else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
-    // break;
+    // Ответ на команду записи/чтения готовности 
+    // всего 3 байта, включая байт ошибки
+    case MCmd::cmd_ready:
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
+      {
+        Tools->setReady(Wake->get16(1));
+        return 0;  //Tools->setProtErr(0);
+      }
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+    break;
 
       // Ответ на команду старта преобразователя с заданными максимальными V и I
       // (всего 5 байт, включая байт ошибки)
@@ -656,6 +655,7 @@ void MCommands::doGetState()
 void MCommands::doReady()
 {
   int id = 0;
+  id = Wake->replyU16( id, Tools->ready );
   Wake->configAsk( id, MCmd::cmd_ready);
 }
 
@@ -894,7 +894,7 @@ void MCommands::doPidReconfigure()
 void MCommands::doPidClear() 
 {
   int id = 0;
-  id = Wake->replyU08( id, Tools->pidMode );
+  //id = Wake->replyU08( id, Tools->pidMode );
   Wake->configAsk( id, MCmd::cmd_pid_clear);
 }  
 

@@ -12,8 +12,8 @@ namespace MPrj
   // Согласованные параметры измерителей SAMD21:
   static constexpr unsigned short factor_v_default = 0x5326u;
   static constexpr unsigned short factor_i_default = 0x7918u;
-  static constexpr unsigned short smooth_v_default = 1u;
-  static constexpr unsigned short smooth_i_default = 1u;
+  static constexpr unsigned short smooth_v_default = 4u;
+  static constexpr unsigned short smooth_i_default = 4u;
   static constexpr short shift_v_default           = 0;
   static constexpr short shift_i_default           = 0;
 

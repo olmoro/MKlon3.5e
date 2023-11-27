@@ -26,6 +26,9 @@ class MTools
     void  setErr(short err);
     short getErr();
 
+
+
+
     // Локализация
     bool getLocalization() const;
     void setLocalization(bool);
@@ -75,6 +78,9 @@ class MTools
     uint16_t setpointU      = 0x3390;     // 13200
     uint16_t setpointI      = 0x0BB8;     //  3000
     uint16_t setpointD      = 0x0258;     //   600
+    uint16_t ready          = 0x0000;     //  
+    void  setReady(short ready);
+    short getReady();
 
     unsigned short pidMode  = 0x01;       // 1 - начать с регулирования по напряжению
     unsigned short kp       = 0x0190;
@@ -168,11 +174,11 @@ class MTools
     void txGetI();                                          // 0x12 Чтение тока (мА)
     void txGetUI();                                         // 0x13 Чтение напряжения (мВ) и тока (мА)
     void txGetState();                                      // 0x14 Чтение состояния
-    void txReady();                                         // 0x15 Параметры согласованы
+    void txReady(short value);                              // 0x15* Согласование версий, готовность
       
       // Команды stop/go
-    void txPowerAuto(short spV, short spI);                 // 0x20
-    void txPowerStop();                                     // 0x21
+    void txPowerAuto(short spV, short spI);                 // 0x20*
+    void txPowerStop();                                     // 0x21*
     void txPowerMode(short spV, short spI, uint8_t mode);   // 0x22
     void txPowerVGo(short spV, short spI);                            // 0x22
     void txPowerIGo(short spV, short spI);                            // 0x22
@@ -188,43 +194,43 @@ class MTools
       // Команды работы с измерителем напряжения
         // Множитель преобразования в милливольты
     void txGetFactorU();                                    // 0x30 Чтение
-    void txSetFactorU(short val);                           // 0x31 Запись
+    void txSetFactorU(short val);                           // 0x31* Запись
     void txSetFactorDefaultU();                             // 0x32 Возврат к заводскому
         // Параметр сглаживания
     void txGetSmoothU();                                    // 0x33 Чтение
-    void txSetSmoothU(short val);                           // 0x34 Запись
+    void txSetSmoothU(short val);                           // 0x34* Запись
         // Приборный сдвиг
     void txGetShiftU();                                     // 0x35 Чтение
-    void txSetShiftU(short val);                            // 0x36 Запись
+    void txSetShiftU(short val);                            // 0x36* Запись
 
       // Команды работы с измерителем тока
         // Множитель преобразования в миллиамперы
     void txGetFactorI();                                    // 0x38 Чтение
-    void txSetFactorI(short val);                           // 0x39 Запись
+    void txSetFactorI(short val);                           // 0x39* Запись
     void txSetFactorDefaultI();                             // 0x3A Возврат к заводскому
         // Параметр сглаживания
     void txGetSmoothI();                                    // 0x3B Чтение
-    void txSetSmoothI(short val);                           // 0x3C Запись
+    void txSetSmoothI(short val);                           // 0x3C* Запись
         // Приборный сдвиг
     void txGetShiftI();                                     // 0x3D Чтение
-    void txSetShiftI(short val);                            // 0x3E Запись
+    void txSetShiftI(short val);                            // 0x3E* Запись
 
       // Команды работы с ПИД-регулятором
     void txSetPidConfig(uint8_t m, float kp, float ki, float kd, uint16_t minOut, uint16_t maxOut);   // 0x40 Запись
 
     void txSetPidCoeff(unsigned short m, float kp, float ki, float kd);    // 0x41 Запись
-    void txSetPidCoeffV(float kp, float ki, float kd);      // 0x41 Запись
-    void txSetPidCoeffI(float kp, float ki, float kd);      // 0x41 Запись
-    void txSetPidCoeffD(float kp, float ki, float kd);      // 0x41 Запись
+    void txSetPidCoeffV(float kp, float ki, float kd);      // 0x41* Запись
+    void txSetPidCoeffI(float kp, float ki, float kd);      // 0x41* Запись
+    void txSetPidCoeffD(float kp, float ki, float kd);      // 0x41* Запись
 
     void txSetPidOutputRange(uint8_t m, uint16_t minOut, uint16_t maxOut);                               // 0x42
     void txSetPidReconfig(uint8_t m, float kp, float ki, float kd, uint16_t minOut, uint16_t maxOut);    // 0x43, w/o clear
-    void txPidClear();                                      // 0x44
+    void txPidClear();                                      // 0x44*
 
-    void txGetPidTreaty();                                  // 0x47 Get shift, bits, hz
+    void txGetPidTreaty();                                  // 0x47* Get shift, bits, hz
     void txGetPidConfig();                                  // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
     //void txSetPidTreaty(unsigned short shift, unsigned short bits, unsigned short hz);  // 0x4A Запись
-    void txSetPidFrequency(unsigned short hz);              // 0x4A Запись
+    void txSetPidFrequency(unsigned short hz);              // 0x4A* Запись
     
     void txGetProbes();                                     // 0x50
     void txGetAdcOffset();                                  // 0x51

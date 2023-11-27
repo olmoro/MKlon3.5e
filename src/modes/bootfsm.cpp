@@ -267,7 +267,7 @@ namespace MBoot
   // Состояние: "Индикация итогов и выход из режима заряда в меню диспетчера" 
   MExit::MExit(MTools * Tools) : MState(Tools)
   {
-    Tools->txReady();                                   // 0x15  Команда драйверу
+    Tools->txReady(0x0001);          // (Tools->ready)            // 0x15  Команда драйверу
 #ifdef BOOT_STEP
     Display->drawLabel("Boot done:", 0);
     Display->drawShort( "factorV :", 1, Tools->factorV); 
@@ -281,7 +281,7 @@ namespace MBoot
     Board->ledsOff();
     Display->showVolt(Tools->getRealVoltage(), 2);
     Display->showAmp (Tools->getRealCurrent(), 2);
-    Board->setReady(true);
+    // Board->setReady(true);                            // Заглушка
   }    
   MState * MExit::fsm()
   {

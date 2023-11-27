@@ -92,6 +92,9 @@ unsigned short MTools::getState()               {return state;}
 void  MTools::setErr(short err)                 {error = err;}
 short MTools::getErr()                          {return error;}
 
+void  MTools::setReady(short value)             {ready = value;}
+short MTools::getReady()                        {return ready;}
+
   // Диспетчер
 void MTools::aboutMode(short modeSelection)
 {
@@ -312,8 +315,13 @@ void MTools::txGetU()               {buffCmd = MCmd::cmd_get_u;}        // 0x11 
 void MTools::txGetI()               {buffCmd = MCmd::cmd_get_i;}        // 0x12 Чтение тока (мА)
 void MTools::txGetUI()              {buffCmd = MCmd::cmd_get_ui;}       // 0x13 Чтение напряжения (мВ) и тока (мА)
 void MTools::txGetState()           {buffCmd = MCmd::cmd_get_state;}    // 0x14 Чтение состояния
-void MTools::txReady()              {buffCmd = MCmd::cmd_ready;}  // 0x15 Параметры согласованы
 
+void MTools::txReady(short value)
+{
+  ready = value;
+  buffCmd = MCmd::cmd_ready;  // 0x15 Параметры согласованы
+  vTaskDelay(80 / portTICK_PERIOD_MS);
+}
 
 void MTools::txPowerAuto(short spV, short spI)
 {
@@ -362,24 +370,48 @@ void MTools::txDiscurrentAdj(short spD) {setpointD = spD; buffCmd = MCmd::cmd_di
   // Команды управления измерителями:
     // Множитель преобразования в милливольты
 void MTools::txGetFactorU()                           {buffCmd = MCmd::cmd_read_factor_u;}            // 0x30 Чтение
-void MTools::txSetFactorU(short val) {factorV = val;   buffCmd = MCmd::cmd_write_factor_u;}           // 0x31 Запись
+void MTools::txSetFactorU(short val)
+{
+  factorV = val;   buffCmd = MCmd::cmd_write_factor_u;           // 0x31* Запись
+  vTaskDelay(80 / portTICK_PERIOD_MS);
+}
 void MTools::txSetFactorDefaultU()                    {buffCmd = MCmd::cmd_write_factor_default_u;}   // 0x32 Возврат к заводскому
     // Параметр сглаживания по напряжению
 void MTools::txGetSmoothU()                           {buffCmd = MCmd::cmd_read_smooth_u;}            // 0x33 Чтение
-void MTools::txSetSmoothU(short val) {smoothV = val;   buffCmd = MCmd::cmd_write_smooth_u;}           // 0x34 Запись
+void MTools::txSetSmoothU(short val)
+{
+  smoothV = val;   buffCmd = MCmd::cmd_write_smooth_u;           // 0x34* Запись
+  vTaskDelay(80 / portTICK_PERIOD_MS);
+}
     // Приборное смещение по напряжению
 void MTools::txGetShiftU()                            {buffCmd = MCmd::cmd_read_offset_u;}            // 0x35 Чтение
-void MTools::txSetShiftU(short val)  {shiftV  = val;   buffCmd = MCmd::cmd_write_offset_u;}           // 0x36 Запись
+void MTools::txSetShiftU(short val)
+{
+  shiftV  = val;   buffCmd = MCmd::cmd_write_offset_u;           // 0x36* Запись
+  vTaskDelay(80 / portTICK_PERIOD_MS);
+}
     // Множитель преобразования в миллиамперы
 void MTools::txGetFactorI()                           {buffCmd = MCmd::cmd_read_factor_i;}            // 0x38 Чтение
-void MTools::txSetFactorI(short val) {factorI = val;   buffCmd = MCmd::cmd_write_factor_i;}           // 0x39 Запись
+void MTools::txSetFactorI(short val)
+{
+  factorI = val;   buffCmd = MCmd::cmd_write_factor_i;           // 0x39* Запись
+  vTaskDelay(80 / portTICK_PERIOD_MS);
+}
 void MTools::txSetFactorDefaultI()                    {buffCmd = MCmd::cmd_write_factor_default_i;}   // 0x3A Возврат к заводскому
     // Параметр сглаживания по току
 void MTools::txGetSmoothI()                           {buffCmd = MCmd::cmd_read_smooth_i;}            // 0x3B Чтение
-void MTools::txSetSmoothI(short val) {smoothI = val;   buffCmd = MCmd::cmd_write_smooth_i;}           // 0x3C Запись
+void MTools::txSetSmoothI(short val)
+{
+  smoothI = val;   buffCmd = MCmd::cmd_write_smooth_i;           // 0x3C* Запись
+  vTaskDelay(80 / portTICK_PERIOD_MS);
+}
     // Приборное смещение по току
 void MTools::txGetShiftI()                            {buffCmd = MCmd::cmd_read_offset_i;}            // 0x3D Чтение
-void MTools::txSetShiftI(short val)  {shiftI  = val;   buffCmd = MCmd::cmd_write_offset_i;}           // 0x3E Запись
+void MTools::txSetShiftI(short val)
+{
+  shiftI  = val;   buffCmd = MCmd::cmd_write_offset_i;           // 0x3E* Запись
+  vTaskDelay(80 / portTICK_PERIOD_MS);
+}
 
   // Команды работы с ПИД-регулятором (без проверки на max):
 void MTools::txSetPidConfig(uint8_t _m, float _kp, float _ki, float _kd, uint16_t _minOut, uint16_t _maxOut)
@@ -466,11 +498,15 @@ void MTools::txSetPidReconfig(uint8_t _m, float _kp, float _ki, float _kd, uint1
 
 void MTools::txPidClear()
 {
-  buffCmd = MCmd::cmd_pid_clear;               // 0x44
+  buffCmd = MCmd::cmd_pid_clear;               // 0x44*
   vTaskDelay(80 / portTICK_PERIOD_MS);
 } 
 
-void MTools::txGetPidTreaty()                         {buffCmd = MCmd::cmd_pid_read_treaty;}          // 0x47 Get shift, bits, hz
+void MTools::txGetPidTreaty()
+{
+  buffCmd = MCmd::cmd_pid_read_treaty;          // 0x47* Get shift, bits, hz
+  vTaskDelay(80 / portTICK_PERIOD_MS);
+}
 
 void MTools::txGetPidConfig()                         {buffCmd = MCmd::cmd_pid_read_configure;}       // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
 
@@ -487,7 +523,8 @@ void MTools::txGetPidConfig()                         {buffCmd = MCmd::cmd_pid_r
 void MTools::txSetPidFrequency(unsigned short hz)
 {
   pidHz   = hz;
-  buffCmd = MCmd::cmd_pid_write_frequency;                                                             // 0x4A Запись
+  buffCmd = MCmd::cmd_pid_write_frequency;                // 0x4A Запись
+  vTaskDelay(80 / portTICK_PERIOD_MS);
 }
 
 // void MTools::txSetCurrent(unsigned short val)     // 0x59
