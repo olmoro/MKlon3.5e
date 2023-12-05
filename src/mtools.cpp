@@ -364,8 +364,19 @@ void MTools::txDiscurrentAdj(short spD) {setpointD = spD; buffCmd = MCmd::cmd_di
 //   buffCmd = MCmd::cmd_power_on;
 // }
 
+  // 0x29*
+void MTools::txPowerOff() 
+{
+  buffCmd = MCmd::cmd_power_off;
+  vTaskDelay(80 / portTICK_PERIOD_MS);
+}
 
-
+  // 0x2A*  Пока это эквивалент 0x29
+void MTools::txAligning() 
+{
+  buffCmd = MCmd::cmd_aligning;
+  vTaskDelay(80 / portTICK_PERIOD_MS);
+}
 
   // Команды управления измерителями:
     // Множитель преобразования в милливольты

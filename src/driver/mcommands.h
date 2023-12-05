@@ -54,6 +54,8 @@ class MCommands
     void doDiscurrentAdj();             // 0x27  
 
     void doPowerOn();               // 0x28
+    void doPowerOff();                  // 0x29   Перевод в режим ХХ
+    void doAligning();                  // 0x2A*  Выравнивание
 
         // Команды работы с измерителем напряжения 
     void doGetFactorU();                // 0x30   

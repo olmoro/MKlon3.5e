@@ -28,7 +28,9 @@ namespace MCmd
   constexpr uint8_t cmd_discurrent_adj            = 0x27; // Регулировка тока разряда
 
 
-//  constexpr uint8_t cmd_power_on            = 0x28; // 
+//  constexpr uint8_t cmd_power_on            = 0x28; // резерв
+  constexpr uint8_t cmd_power_off                 = 0x29; // Перевод в режим ХХ
+  constexpr uint8_t cmd_aligning                  = 0x2A; // Выравнивание напряжений  (то же)
 
 
   // Команды работы с измерителем напряжения

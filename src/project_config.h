@@ -25,9 +25,15 @@ namespace MPrj
 
   
   // Согласованные параметры ПИД-регуляторов SAMD21 (частный случай):
+#ifdef HZ1000
+  static constexpr unsigned short par_mult         = 0x8000;     // pMult
+  static constexpr unsigned short par_max          = 0x0001;     // pMax
+  static constexpr float par_float_max             = 1.0f;
+#else
   static constexpr unsigned short par_mult         = 0x0100;     // pMult
   static constexpr unsigned short par_max          = 0x00FF;     // pMax
   static constexpr float par_float_max             = (float)par_max / (float)par_mult;
+#endif
   static constexpr short f_hz[6]{ 10, 20, 50, 100, 200, 250 };
   static constexpr short pid_frequency_default  = 3u; // 100Hz ([10, 20, 50, 100, 200, 250])
   

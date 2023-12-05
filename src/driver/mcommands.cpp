@@ -65,6 +65,8 @@ void MCommands::doCommand()
       case MCmd::cmd_discurrent_adj:          doDiscurrentAdj();          break;  // 0x27 Регулировка тока разряда
 
 //      case MCmd::cmd_power_on:            doPowerOn();          break;  // 0x28
+      case MCmd::cmd_power_off:               doPowerOff();               break;  // 0x29
+      case MCmd::cmd_aligning:                doAligning();               break;  // 0x2A
 
         // Команды работы с измерителем напряжения 
       case MCmd::cmd_read_factor_u:           doGetFactorU();             break;  // 0x30
@@ -726,8 +728,20 @@ void MCommands::doDiscurrentAdj()
 // }
 
 
+  //  0x29*
+void MCommands::doPowerOff()
+{
+  int id = 0;
+  Wake->configAsk(id, MCmd::cmd_power_off);  
+}
 
 
+  //  0x2A*
+void MCommands::doAligning()
+{
+  int id = 0;
+  Wake->configAsk(id, MCmd::cmd_aligning);  
+}
 
 
 
