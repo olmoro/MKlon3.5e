@@ -30,7 +30,7 @@ namespace MCmd
 
 //  constexpr uint8_t cmd_power_on            = 0x28; // резерв
   constexpr uint8_t cmd_power_off                 = 0x29; // Перевод в режим ХХ
-  constexpr uint8_t cmd_aligning                  = 0x2A; // Выравнивание напряжений  (то же)
+  constexpr uint8_t cmd_idle                      = 0x2A; // Отключить в холостой ход  (то же)
 
 
   // Команды работы с измерителем напряжения

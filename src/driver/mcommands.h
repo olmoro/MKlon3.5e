@@ -53,9 +53,9 @@ class MCommands
     void doCurrentAdj();                // 0x26  
     void doDiscurrentAdj();             // 0x27  
 
-    void doPowerOn();               // 0x28
+    //void doPowerOn();                 // 0x28   Зарезервировано
     void doPowerOff();                  // 0x29   Перевод в режим ХХ
-    void doAligning();                  // 0x2A*  Выравнивание
+    void doIdle();                  // 0x2A*  Отключить в холостой ход
 
         // Команды работы с измерителем напряжения 
     void doGetFactorU();                // 0x30   

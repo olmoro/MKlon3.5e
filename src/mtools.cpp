@@ -2,7 +2,7 @@
     Набор методов, доступных разработчику для программирования собственных
  режимов работы прибора.
 
-    20230908          
+    20231207          
 */
 
 #include "mtools.h"
@@ -10,7 +10,7 @@
 #include "mcmd.h"
 #include "driver/mcommands.h"
 #include "board/mboard.h"
- #include "mdispatcher.h"
+#include "mdispatcher.h"
 #include "display/mdisplay.h"
 #include "driver/mcommands.h"
 #include <Preferences.h>
@@ -372,9 +372,9 @@ void MTools::txPowerOff()
 }
 
   // 0x2A*  Пока это эквивалент 0x29
-void MTools::txAligning() 
+void MTools::txIdle() 
 {
-  buffCmd = MCmd::cmd_aligning;
+  buffCmd = MCmd::cmd_idle;
   vTaskDelay(80 / portTICK_PERIOD_MS);
 }
 

@@ -66,7 +66,7 @@ void MCommands::doCommand()
 
 //      case MCmd::cmd_power_on:            doPowerOn();          break;  // 0x28
       case MCmd::cmd_power_off:               doPowerOff();               break;  // 0x29
-      case MCmd::cmd_aligning:                doAligning();               break;  // 0x2A
+      case MCmd::cmd_idle:                    doIdle();               break;  // 0x2A
 
         // Команды работы с измерителем напряжения 
       case MCmd::cmd_read_factor_u:           doGetFactorU();             break;  // 0x30
@@ -737,10 +737,10 @@ void MCommands::doPowerOff()
 
 
   //  0x2A*
-void MCommands::doAligning()
+void MCommands::doIdle()
 {
   int id = 0;
-  Wake->configAsk(id, MCmd::cmd_aligning);  
+  Wake->configAsk(id, MCmd::cmd_idle);  
 }
 
 

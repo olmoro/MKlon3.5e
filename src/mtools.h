@@ -190,7 +190,7 @@ class MTools
 
 //    void txPowerOn();                                   // 0x28
     void txPowerOff();                                      // 0x29*
-    void txAligning();                                      // 0x2A*
+    void txIdle();                                      // 0x2A*
 
       // Команды работы с измерителем напряжения
         // Множитель преобразования в милливольты
