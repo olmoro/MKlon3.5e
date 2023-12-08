@@ -16,3 +16,18 @@ txPowerOff()      0x29* Перевод в режим холостого хода
 txIdle()          0x2A* Перевод в режим холостого хода
 RAM:   [=         ]   9.1% (used 48524 bytes from 532480 bytes)
 Flash: [========= ]  93.9% (used 1231374 bytes from 1310720 bytes)
+
+07.12.2023
+devicefsm. : Удалены состояния
+MAdjPidI
+MPidFrequency
+MLoadKpI  MLoadKiI  MLoadKdI
+
+Переименовано:
+MAdjPidV ->  MAdjPidVI
+kpV      ->  kpVI
+
+Новые:
+  void ledStopGo();
+  void autoStopGo(short spV, short spI);
+  void autoIdleGo(short spV, short spI);

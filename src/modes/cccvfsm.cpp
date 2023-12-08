@@ -28,7 +28,7 @@
   не так ли?
     И напоследок: замечено, что не следует создавать сложные состояния, лучше их дробить
   на более простые. 
-  Версия от 07.12.2023 
+  Версия от 08.12.2023 
 */
 
 #include "modes/cccvfsm.h"
@@ -101,7 +101,7 @@ namespace MCccv
     Display->drawShort(  "timeout, hr:",   7,      timeOut);
 
     /* Активировать группу кнопок: newBtn() отменит активацию ранее выведенных на 
-      экран кнопок. Далее кнопки будут задаваться одной строкой. */
+      экран кнопок. Далее кнопки будут задаваться одной функцией. */
     Display->newBtn(MDisplay::START);   // Стартовать без уточнения параметров
     Display->addBtn(MDisplay::STOP);    // Отказаться от заряда
     Board->ledsOn();  // Подтверждение входа в любой режим белым свечением светодиода
@@ -190,7 +190,7 @@ namespace MCccv
     Display->drawParam(           "KpI:", 5,  kpI, 2);
     Display->drawParam(           "KiI:", 6,  kiI, 2);
     Display->drawParam(           "KdI:", 7,  kdI, 2);
-    Board->ledsGreen();
+//    Board->ledsGreen();
     Display->newBtn( MDisplay::STOP, MDisplay::NEXT);
       // Обнуляются счетчики времени и отданного заряда
     Tools->clrTimeCounter();
@@ -242,9 +242,11 @@ namespace MCccv
     Display->showDuration(Tools->getChargeTimeCounter(), MDisplay::SEC);
     Display->showAh(Tools->getAhCharge());
     /* Уровни сглаживания можно не вводить всякий раз, однако при выходе из режима CCCV 
-    всётаки лучше их вернуть к уровню 2. */
+    всётаки лучше будет (не здесь!) их вернуть к уровню 2. */
     Tools->showVolt(Tools->getRealVoltage(), 2, 3);
     Tools->showAmp (Tools->getRealCurrent(), 2, 3);
+
+    Tools->ledStopGo();     /* RED : Green */
 
     return this;  };
 
@@ -269,7 +271,7 @@ namespace MCccv
     Display->drawParam(            "KiV:", 6,  kiV, 2);
     Display->drawParam(            "KdV:", 7,  kdV, 2);
     Display->newBtn(MDisplay::STOP, MDisplay::NEXT);
-    Board->ledsYellow();
+//    Board->ledsYellow();
   }
 
   MState *MKeepVmax::fsm()
@@ -291,6 +293,7 @@ namespace MCccv
     Display->showAh(Tools->getAhCharge());
     Tools->showVolt(Tools->getRealVoltage(), 2, 2); //Вольты покажем во всей красе
     Tools->showAmp (Tools->getRealCurrent(), 2, 3); //Скроем третий знак и отфильтруем
+      Tools->ledStopGo();     /* RED : Green */
     return this; };
 
 
@@ -306,7 +309,7 @@ namespace MCccv
     Display->drawParFl(    "SetpointV, V:", 3, minV, 2);
     Display->drawShort("Wait timeout, hr:", 4, timeOut);
     Display->clearLine(                     5, 7);
-    Board->ledsYellow();
+//    Board->ledsYellow();
     Display->newBtn(MDisplay::STOP, MDisplay::NEXT);
 
     Tools->clrTimeCounter();      // Обнуляются счетчики времени
@@ -351,6 +354,8 @@ namespace MCccv
         картинку на браузере и дисплее. Для отмены придётся задать "2" */
     Tools->showVolt(Tools->getRealVoltage(), 2, 3);   // Зададим формат NN.NNN
     Tools->showAmp (Tools->getRealCurrent(), 2, 3);
+
+      Tools->ledStopGo();     /* RED : Green */
     return this; };
 
   //========================================================================= MStop
@@ -379,7 +384,7 @@ namespace MCccv
     Display->drawLabel(          ". . . . . .", 5);
     Display->drawLabel(          ". . . . . .", 6);
     Display->drawLabel(          ". . . . . .", 7);
-    Board->ledsRed();                                     // Стоп-сигнал
+//    Board->ledsRed();                                     // Стоп-сигнал
     Display->newBtn(MDisplay::START, MDisplay::EXIT);
   }    
   MState * MStop::fsm()
@@ -392,6 +397,7 @@ namespace MCccv
     }
     Tools->showVolt(Tools->getRealVoltage(), 2, 2);
     Tools->showAmp (Tools->getRealCurrent(), 2, 2);
+      Tools->ledStopGo();     /* RED : Green */
     return this; }; //MStop
 
 
@@ -402,9 +408,13 @@ namespace MCccv
   MExit::MExit(MTools * Tools) : MState(Tools)
   {
     Tools->aboutMode(MDispatcher::CCCV);
-    Board->ledsOff();
+//    Board->ledsOff();
     Display->newBtn(MDisplay::GO, MDisplay::UP, MDisplay::DN);
   }
-  MState *MExit::fsm() { return nullptr; };  // В меню
+  MState *MExit::fsm() 
+  { 
+      Tools->ledStopGo();     /* RED : Green */
+    return nullptr; 
+  };  // В меню
 
 }; //namespace MCccv

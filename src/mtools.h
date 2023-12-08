@@ -340,7 +340,7 @@ class MTools
     static constexpr unsigned short status_voltage_control  = 1U<<12; 
     static constexpr unsigned short status_charge           = 1U<<11; 
     static constexpr unsigned short status_discharge        = 1U<<10; 
-    static constexpr unsigned short status_auto_mode        = 1U<<9; 
+    static constexpr unsigned short status_idle             = 1U<<9; 
     static constexpr unsigned short status_pid              = 1U<<8;
     static constexpr unsigned short status_overheating      = 1U<<7; 
     static constexpr unsigned short status_overload         = 1U<<6; 
@@ -369,6 +369,7 @@ class MTools
 
     unsigned short getStatusPidVoltage() {return status_pid_voltage;}
     unsigned short getStatusPidCurrent() {return status_pid_current;}
+    //unsigned short getStatusPidAuto(){return status_pid_voltage | status_pid_current;}
     unsigned short getStatusPidDiscurrent() {return status_pid_discurrent;}
 
 
@@ -380,8 +381,16 @@ class MTools
     void showVolt(float volt, uint8_t pls);
     void showVolt(float volt, uint8_t pls, short filtr);
 
+    //     ((Tools->getState() == Tools->getStatusPidVoltage()) |
+    //  (Tools->getState() == Tools->getStatusPidCurrent())) ?  /*Green : Red*/
+    //                                    Board->ledsGreen() : Board->ledsRed();
+    void ledStopGo();
 
-
+                // ((Tools->getState() == Tools->getStatusPidVoltage()) |
+                //  (Tools->getState() == Tools->getStatusPidCurrent())) ?  /* 0x21 : 0x20 */
+                //                                  Tools->txPowerStop() : Tools->txPowerAuto(spV, spI);
+    void autoStopGo(short spV, short spI);
+    void autoIdleGo(short spV, short spI);
 
   private:
     //==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ====

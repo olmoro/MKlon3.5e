@@ -650,3 +650,26 @@ void MTools::showVolt(float volt, uint8_t pls, short filtr)
   beautyV = filtr;
   Display->showVolt(volt, pls);
 }
+
+
+void MTools::ledStopGo()
+{
+  ((getState() == getStatusPidVoltage()) |
+   (getState() == getStatusPidCurrent()) |
+   (getState() == getStatusPidDiscurrent())) ?  /*Green : Red*/
+                          Board->ledsGreen() : Board->ledsRed();
+}
+
+void MTools::autoStopGo(short spV, short spI)
+{
+  ((getState() == getStatusPidVoltage()) |
+   (getState() == getStatusPidCurrent())) ?  /* 0x21 : 0x20 */
+                            txPowerStop() : txPowerAuto(spV, spI);
+}
+
+void MTools::autoIdleGo(short spV, short spI)
+{
+  ((getState() == getStatusPidVoltage()) |
+   (getState() == getStatusPidCurrent())) ?  /* 0x2A : 0x20 */
+                                 txIdle() : txPowerAuto(spV, spI);
+}
