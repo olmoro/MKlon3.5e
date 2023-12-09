@@ -28,10 +28,10 @@ namespace MDevice
       MState * fsm() override;
   };
 
-  class MAdjPidVI : public MState
+  class MAdjPidC : public MState
   {       
     public:
-      MAdjPidVI(MTools * Tools);
+      MAdjPidC(MTools * Tools);
       MState * fsm() override;
   };
 
@@ -145,33 +145,33 @@ namespace MDevice
       static constexpr short delta =  200u;
   };
 
-  //======== MLoadkpVI, ввод параметра KP PID-регулятора напряжения ========= 
-  class MLoadkpVI : public MState
+  //======== MLoadKp, ввод параметра KP PID-регулятора ========= 
+  class MLoadKp : public MState
   {
     public:  
-      MLoadkpVI(MTools * Tools);
+      MLoadKp(MTools * Tools);
       MState * fsm() override;
     private:
       static constexpr float up = MPrj::par_float_max;    //1.00f;
       static constexpr float dn = 0.01f; 
   };
 
-  //======== MLoadKiV, ввод параметра KI PID-регулятора напряжения ========= 
-  class MLoadKiV : public MState
+  //======== MLoadKi, ввод параметра KI PID-регулятора ========= 
+  class MLoadKi : public MState
   {
     public:  
-      MLoadKiV(MTools * Tools);
+      MLoadKi(MTools * Tools);
       MState * fsm() override;
     private:
       static constexpr float up = MPrj::par_float_max;    //4.00f;
       static constexpr float dn = 0.00f;
   };
 
-  //======== MLoadKdV, ввод параметра KD PID-регулятора напряжения ========= 
-  class MLoadKdV : public MState
+  //======== MLoadKd, ввод параметра KD PID-регулятора ========= 
+  class MLoadKd : public MState
   {
     public:  
-      MLoadKdV(MTools * Tools);
+      MLoadKd(MTools * Tools);
       MState * fsm() override;
     private:
       static constexpr float up = MPrj::par_float_max;    //1.00f;

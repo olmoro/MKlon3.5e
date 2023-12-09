@@ -393,6 +393,10 @@ class MTools
                 //                                  Tools->txPowerStop() : Tools->txPowerAuto(spV, spI);
     void autoStopGo(short spV, short spI);
     void autoIdleGo(short spV, short spI);
+           // (Tools->getState() == Tools->getStatusPidDiscurrent()) ?
+            //                                   Tools->txPowerStop() : Tools->txDischargeGo(spD);
+
+    void dischargeStopGo(short spD); 
 
   private:
     //==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ====

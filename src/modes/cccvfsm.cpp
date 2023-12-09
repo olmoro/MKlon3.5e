@@ -60,17 +60,7 @@ namespace MCccv
     исполняющий процесс инициализации, и только один раз, пока не произведен 
     вход и иное состояние. */
 
-/*  В версии от 20231202 вводится режим, аналогичный 820-му без отключения силового
-  преобразователя.
-      //Отключить на всякий пожарный силовую часть.
-    Tools->txPowerStop();                 // 0x21*  Команда драйверу
-
-  Силовая часть переводится в режим пониженной мощности с подгрузкой разрядной 
-  цепи.
-
-*/
-    //Tools->txPowerOff();      // 0x29*    Перевод в режим холостого хода
-    Tools->txIdle();      // 0x2A*    Перевод в режим холостого хода
+         Tools->txPowerStop();                 // 0x21*  Команда драйверу
 
     /*  Параметры заряда восстанавливаются из энергонезависимой памяти. Пороговые значения 
     напряжений и токов рассчитываются исходя из типа батареи, её номинального напряжения и 
@@ -134,16 +124,9 @@ namespace MCccv
     kp = Tools->readNvsFloat("device", "kpI", MPrj::kp_default);
     ki = Tools->readNvsFloat("device", "kiI", MPrj::ki_default);
     kd = Tools->readNvsFloat("device", "kdI", MPrj::kd_default);
-    
-//  Serial.print("\nkp="); Serial.print(kpI, 2);  
-//  Serial.print("\nki="); Serial.print(kiI, 2);  
-//  Serial.print("\nkd="); Serial.print(kdI, 2);  
-    
+
     Tools->txSetPidCoeffI(kp, ki, kd);                             // 0x41* Применить
  
-    // kpV = Tools->readNvsFloat("device", "kpV", MPrj::kp_v_default);
-    // kiV = Tools->readNvsFloat("device", "kiV", MPrj::ki_v_default);
-    // kdV = Tools->readNvsFloat("device", "kdV", MPrj::kd_v_default);
     Tools->txSetPidCoeffV(kp, ki, kd);                             // 0x41* Применить
 
       // Инициализация счетчика времени до старта
@@ -191,7 +174,6 @@ namespace MCccv
     Display->drawParam(            "Kp:", 5,   kp, 2);
     Display->drawParam(            "Ki:", 6,   ki, 2);
     Display->drawParam(            "Kd:", 7,   kd, 2);
-//    Board->ledsGreen();
     Display->newBtn( MDisplay::STOP, MDisplay::NEXT);
       // Обнуляются счетчики времени и отданного заряда
     Tools->clrTimeCounter();
@@ -272,7 +254,6 @@ namespace MCccv
     Display->drawParam(             "Ki:", 6,   ki, 2);
     Display->drawParam(             "Kd:", 7,   kd, 2);
     Display->newBtn(MDisplay::STOP, MDisplay::NEXT);
-//    Board->ledsYellow();
   }
 
   MState *MKeepVmax::fsm()
@@ -310,7 +291,6 @@ namespace MCccv
     Display->drawParFl(    "SetpointV, V:", 3, minV, 2);
     Display->drawShort("Wait timeout, hr:", 4, timeOut);
     Display->clearLine(                     5, 7);
-//    Board->ledsYellow();
     Display->newBtn(MDisplay::STOP, MDisplay::NEXT);
 
     Tools->clrTimeCounter();      // Обнуляются счетчики времени
@@ -371,9 +351,9 @@ namespace MCccv
   цепи.
 
 */
-    //Tools->txPowerStop();             // 0x21* Команда драйверу отключить преобразователь
+    Tools->txPowerStop();             // 0x21* Команда драйверу отключить преобразователь
     //Tools->txPowerOff();      // 0x29*  Перевод в режим холостого хода
-    Tools->txIdle();      // 0x2A*  Перевод в режим холостого хода
+    //Tools->txIdle();      // 0x2A*  Перевод в режим холостого хода
 
 
     Display->drawLabel(                 "CCCV", 0);

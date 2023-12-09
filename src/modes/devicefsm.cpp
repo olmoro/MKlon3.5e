@@ -26,7 +26,6 @@
 */
 
 #include "modes/devicefsm.h"
-//#include "driver/mcommands.h"
 #include "mdispatcher.h"
 #include "mtools.h"
 #include "board/mboard.h"
@@ -36,9 +35,9 @@
 namespace MDevice
 {
   static uint8_t mark = 3;  // Строка, выделяемая цветом
-  short spV, spI, spD;           // Пороговые значения для отладки "на лету"
-  float kpVI, kiVI, kdVI;      // Коэффициенты ПИД-регулятора по напряжению
-  float kpD, kiD, kdD;      // то же по току разряда
+  short spV, spI, spD;      // Пороговые значения для отладки "на лету"
+  float kpC, kiC, kdC;      // Коэффициенты ПИД-регулятора заряда
+  float kpD, kiD, kdD;      // то же разряда
 
   //========================================================================= MStart
   // Состояние "Старт", инициализация выбранного режима работы (DEVICE).
@@ -103,8 +102,8 @@ namespace MDevice
     Display->drawLabel(        "DEVICE", 0);
     Display->drawLabel("Adjusting Pid:", 1);
     Display->clearLine(                  2);
-    Display->drawAdj(        "PID_VI",   3, mark);
-    Display->drawAdj(         "PID_D",   4, mark);
+    Display->drawAdj(      "PID_CHARGE", 3, mark);
+    Display->drawAdj(   "PID_DISCHARGE", 4, mark);
     Display->clearLine(               5, 7);
     Board->ledsBlue();
     Display->newBtn(MDisplay::GO, MDisplay::NEXT, MDisplay::BACK);
@@ -115,13 +114,13 @@ namespace MDevice
     switch (Display->getKey())
     {
       case MDisplay::NEXT:  (mark >= 4) ? mark = 3 : mark++;      // Переместить курсор
-                            Display->drawAdj(        "PID_VI", 3, mark);
-                            Display->drawAdj(         "PID_D", 4, mark);
+                            Display->drawAdj(    "PID_CHARGE", 3, mark);
+                            Display->drawAdj( "PID_DISCHARGE", 4, mark);
                             break;
       case MDisplay::GO:    switch (mark)
                             {
-                              case 3: return new MAdjPidVI(Tools);      //
-                              case 4: return new MAdjPidD(Tools);      //
+                              case 3: return new MAdjPidC(Tools);
+                              case 4: return new MAdjPidD(Tools);
                               default:;
                             }
       case MDisplay::BACK:  return new MStart(Tools); // Перейти к 
@@ -132,32 +131,32 @@ namespace MDevice
 
 
 
-  //========================================================================= MAdjPidVI
+  //========================================================================= MAdjPid
   /* Состояние выбора параметра */
-  MAdjPidVI::MAdjPidVI(MTools *Tools) : MState(Tools)
+  MAdjPidC::MAdjPidC(MTools *Tools) : MState(Tools)
   {
     spV = Tools->readNvsShort("device", "spV", sp_u_default);
     spI = Tools->readNvsShort("device", "spI", sp_i_default);
     // Восстановление пользовательских kp, ki, kp
-    kpVI = Tools->readNvsFloat("device", "kpV", MPrj::kp_default);
-    kiVI = Tools->readNvsFloat("device", "kiV", MPrj::ki_default);
-    kdVI = Tools->readNvsFloat("device", "kdV", MPrj::kd_default);
-    Tools->txSetPidCoeffI(kpVI, kiVI, kdVI);                           // 0x41 Применить
+    kpC = Tools->readNvsFloat("device", "kpV", MPrj::kp_default);
+    kiC = Tools->readNvsFloat("device", "kiV", MPrj::ki_default);
+    kdC = Tools->readNvsFloat("device", "kdV", MPrj::kd_default);
+    Tools->txSetPidCoeffI(kpC, kiC, kdC);                           // 0x41 Применить
 
     mark = 2;
-    Display->drawLabel(         "DEVICE", 0);
-    Display->drawLabel("Adjusting Sets:", 1);
-    Display->drawAdj  (       "STOP/GO!", 2,         mark);
-    Display->drawParFl(        "Sp, V :", 3, spV, 2, mark);
-    Display->drawParFl(        "Sp, A :", 4, spI, 2, mark);
-    Display->drawParam(           "Kp :", 5, kpVI, 2, mark);
-    Display->drawParam(           "Ki :", 6, kiVI, 2, mark);
-    Display->drawParam(           "Kd :", 7, kdVI, 2, mark);
+    Display->drawLabel(          "DEVICE", 0);
+    Display->drawLabel("Adjusting PID_C:", 1);
+    Display->drawAdj  (        "STOP/GO!", 2,         mark);
+    Display->drawParFl(         "Sp, V :", 3, spV, 2, mark);
+    Display->drawParFl(         "Sp, A :", 4, spI, 2, mark);
+    Display->drawParam(            "Kp :", 5, kpC, 2, mark);
+    Display->drawParam(            "Ki :", 6, kiC, 2, mark);
+    Display->drawParam(            "Kd :", 7, kdC, 2, mark);
 
     Display->newBtn(MDisplay::GO, MDisplay::NEXT, MDisplay::BACK);
   }
 
-  MState *MAdjPidVI::fsm()
+  MState *MAdjPidC::fsm()
   {
     switch (Display->getKey())
     {
@@ -165,18 +164,18 @@ namespace MDevice
                             Display->drawAdj  ("STOP/GO!", 2,         mark);
                             Display->drawParFl( "Sp, V :", 3, spV, 2, mark);
                             Display->drawParFl( "Sp, A :", 4, spI, 2, mark);
-                            Display->drawParam(    "Kp :", 5, kpVI, 2, mark);
-                            Display->drawParam(    "Ki :", 6, kiVI, 2, mark);
-                            Display->drawParam(    "Kd :", 7, kdVI, 2, mark);
+                            Display->drawParam(    "Kp :", 5, kpC, 2, mark);
+                            Display->drawParam(    "Ki :", 6, kiC, 2, mark);
+                            Display->drawParam(    "Kd :", 7, kdC, 2, mark);
                             break;
       case MDisplay::GO:    switch (mark)
                             {
             /*STOP/GO!*/      case 2: Tools->autoStopGo(spV, spI);   break; //autoIdleGo(spV, spI)
              /*Sp, V :*/      case 3: return new MLoadSpV(Tools);
              /*Sp, A :*/      case 4: return new MLoadSpI(Tools);
-                /*Kp :*/      case 5: return new MLoadkpVI(Tools);
-                /*Ki :*/      case 6: return new MLoadKiV(Tools);
-                /*Kd :*/      case 7: return new MLoadKdV(Tools);
+                /*Kp :*/      case 5: return new MLoadKp(Tools);
+                /*Ki :*/      case 6: return new MLoadKi(Tools);
+                /*Kd :*/      case 7: return new MLoadKd(Tools);
                               default:;
                             }
                             break;
@@ -188,14 +187,14 @@ namespace MDevice
 
     Tools->ledStopGo();
     return this;
-  };  //MAdjPidVII
+  };  //MAdjPidC
 
 
 
   MLoadSpV::MLoadSpV(MTools *Tools) : MState(Tools)
   {
     Tools->writeNvsShort("device", "spV", spV);
-    Tools->txSetPidCoeffV(kpVI, kiVI, kdVI);           // 0x41 Применить
+    Tools->txSetPidCoeffV(kpC, kiC, kdC);           // 0x41 Применить
     mark = 3;
     Display->drawLabel("Adjusting Setpoint V:", 1);
     Display->drawParFl(              "Sp, V :", 3, spV, 2, mark);
@@ -209,9 +208,12 @@ namespace MDevice
     {
       case MDisplay::SAVE:  Tools->writeNvsShort("device", "spV", spV);
                             // Включить (0x22)или отключить (0x21)    // д.б. STOP/GO
-        (Tools->getState() == Tools->getStatusPidVoltage()) ?
-                                       Tools->txPowerStop() : Tools->txPowerAuto(spV, spI); // 0x20 Применить
-                            return new MAdjPidVI(Tools);
+
+        // (Tools->getState() == Tools->getStatusPidVoltage()) ?
+        //                                Tools->txPowerStop() : Tools->txPowerAuto(spV, spI); // 0x20 Применить
+         Tools->autoStopGo(spV, spI); 
+
+                            return new MAdjPid(Tools);
       case MDisplay::UP:    spV = Tools->updnInt(spV, dn, up, delta);
                             Display->drawLabel("Sp V changed:", 1);
                             Display->drawParFl(      "Sp, V :", 3, spV, 2, mark);
@@ -236,7 +238,7 @@ namespace MDevice
   {
     Tools->writeNvsShort("device", "spI", spI);
     //Tools->txSetPidCoeffV(kpI, kiI, kdI);           // 0x41 Применить
-    Tools->txSetPidCoeffV(kpVI, kiVI, kdVI);           // 0x41 Применить
+    Tools->txSetPidCoeffV(kpC, kiC, kdC);           // 0x41 Применить
     mark = 3;
     Display->drawLabel("Adjusting Setpoint I:", 1);
     Display->drawParFl(              "Sp, A :", 3, spI, 2, mark);
@@ -250,10 +252,14 @@ namespace MDevice
     {
       case MDisplay::SAVE: Tools->writeNvsShort("device", "spI", spI);
                             // Включить (0x20)или отключить (0x21)
-                     (Tools->getState() == Tools->getStatusPidCurrent()) ?
-                                                    Tools->txPowerStop() : Tools->txPowerAuto(spV, spI);
+                    //  (Tools->getState() == Tools->getStatusPidCurrent()) ?
+                    //                                 Tools->txPowerStop() : Tools->txPowerAuto(spV, spI);
+                              Tools->autoStopGo(spV, spI); 
+        
+                            
+                            
                             //return new MAdjPidI(Tools);
-                            return new MAdjPidVI(Tools);
+                            return new MAdjPid(Tools);
       case MDisplay::UP:    spI = Tools->updnInt(spI, dn, up, delta);
                             Display->drawLabel("Sp I changed:", 1);
                             Display->drawParFl(      "Sp, A :", 3, spI, 2, mark);
@@ -621,118 +627,118 @@ namespace MDevice
 
 
 
-  //========== MLoadkpVI, ввод параметра KP PID-регулятора напряжения =========
-  MLoadkpVI::MLoadkpVI(MTools *Tools) : MState(Tools)
+  //========== MLoadKp, ввод параметра KP PID-регулятора =========
+  MLoadKp::MLoadKp(MTools *Tools) : MState(Tools)
   {
     Display->drawLabel(         "DEVICE", 0);
     Display->drawLabel("Adjusting kp V:", 1);
-    Display->drawParam(           "Kp :", 3, kpVI, 2);
+    Display->drawParam(           "Kp :", 3, kpC, 2);
     Display->clearLine(                   4, 7);
     mark = 3;
     Display->newBtn(MDisplay::SAVE, MDisplay::UP, MDisplay::DN);
   }
 
-  MState *MLoadkpVI::fsm()
+  MState *MLoadKp::fsm()
   {
     switch (Display->getKey())
     {
-      case MDisplay::SAVE:  Tools->writeNvsFloat("device", "kpV", kpVI);
-                            Tools->txSetPidCoeffV(kpVI, kiVI, kdVI);       // 0x41 Применить
-                            return new MAdjPidVI(Tools);
-      case MDisplay::UP:    kpVI = Tools->updnFloat(kpVI, dn, up, +0.01);
+      case MDisplay::SAVE:  Tools->writeNvsFloat("device", "kpV", kpC);
+                            Tools->txSetPidCoeffV(kpC, kiC, kdC);       // 0x41 Применить
+                            return new MAdjPid(Tools);
+      case MDisplay::UP:    kpC = Tools->updnFloat(kpC, dn, up, +0.01);
                             Display->drawLabel("Voltage kp changed:", 1);
-                            Display->drawParam(             "Kp V :", 3, kpVI, 2, mark);
-                            Tools->txSetPidCoeffV(kpVI, kiVI, kdVI);       // 0x41 Применить
+                            Display->drawParam(             "Kp V :", 3, kpC, 2, mark);
+                            Tools->txSetPidCoeffV(kpC, kiC, kdC);       // 0x41 Применить
                             break;
-      case MDisplay::DN:    kpVI = Tools->updnFloat( kpVI, dn, up, -0.01);
+      case MDisplay::DN:    kpC = Tools->updnFloat( kpC, dn, up, -0.01);
                             Display->drawLabel("Voltage kp changed:", 1);
-                            Display->drawParam(             "Kp V :", 3, kpVI, 2, mark);
-                            Tools->txSetPidCoeffV(kpVI, kiVI, kdVI);       // 0x41 Применить
+                            Display->drawParam(             "Kp V :", 3, kpC, 2, mark);
+                            Tools->txSetPidCoeffV(kpC, kiC, kdC);       // 0x41 Применить
                             break;
       default:;
     }
     (Tools->getState() == Tools->getStatusPidVoltage()) ? 
                                      Board->ledsGreen() : Board->ledsRed();
     return this;
-  };  //MLoadkpVI
+  };  //MLoadKp
 
-  //========== MLoadKiV, ввод параметра KI PID-регулятора напряжения =========
-  MLoadKiV::MLoadKiV(MTools *Tools) : MState(Tools)
+  //========== MLoadKi, ввод параметра KI PID-регулятора напряжения =========
+  MLoadKi::MLoadKi(MTools *Tools) : MState(Tools)
   {
     Display->drawLabel(         "DEVICE", 0);
     Display->drawLabel("Adjusting ki V:", 1);
-    Display->drawParam(           "Ki :", 3, kiVI, 2);
+    Display->drawParam(           "Ki :", 3, kiC, 2);
     Display->clearLine(                   4, 7);
     mark = 3;
     Display->newBtn(MDisplay::SAVE, MDisplay::UP, MDisplay::DN);
   }
 
-  MState *MLoadKiV::fsm()
+  MState *MLoadKi::fsm()
   {
     switch (Display->getKey())
       {
-      case MDisplay::SAVE:      Tools->writeNvsFloat("device", "kiV", kiVI);
-                                Tools->txSetPidCoeffV(kpVI, kiVI, kdVI);             // 0x41 Применить
-                                return new MAdjPidVI(Tools);
+      case MDisplay::SAVE:      Tools->writeNvsFloat("device", "kiV", kiC);
+                                Tools->txSetPidCoeffV(kpC, kiC, kdC);             // 0x41 Применить
+                                return new MAdjPid(Tools);
       case MDisplay::UP:
-        kiVI = Tools->updnFloat(kiVI, dn, up, +0.01);
+        kiC = Tools->updnFloat(kiC, dn, up, +0.01);
         Display->drawLabel("Voltage ki changed:", 1);
-        Display->drawParam(             "Ki V :", 3, kiVI, 2, mark);
-        Tools->txSetPidCoeffV(kpVI, kiVI, kdVI);             // 0x41 Применить
+        Display->drawParam(             "Ki V :", 3, kiC, 2, mark);
+        Tools->txSetPidCoeffV(kpC, kiC, kdC);             // 0x41 Применить
         break;
       case MDisplay::DN:
-        kiVI = Tools->updnFloat(kiVI, dn, up, -0.01);
+        kiC = Tools->updnFloat(kiC, dn, up, -0.01);
         Display->drawLabel("Voltage ki changed:", 1);
-        Display->drawParam(             "Ki V :", 3, kiVI, 2, mark);
-        Tools->txSetPidCoeffV(kpVI, kiVI, kdVI);             // 0x41 Применить
+        Display->drawParam(             "Ki V :", 3, kiC, 2, mark);
+        Tools->txSetPidCoeffV(kpC, kiC, kdC);             // 0x41 Применить
         break;
       default:;
     }
     (Tools->getState() == Tools->getStatusPidVoltage()) ? 
                                      Board->ledsGreen() : Board->ledsRed();
     return this;
-  };  //MLoadKiV
+  };  //MLoadKi
 
-  //========== MLoadKdV, ввод параметра KD PID-регулятора напряжения =========
-  MLoadKdV::MLoadKdV(MTools *Tools) : MState(Tools)
+  //========== MLoadKd, ввод параметра KD PID-регулятора напряжения =========
+  MLoadKd::MLoadKd(MTools *Tools) : MState(Tools)
   {
     Display->drawLabel("Adjusting kd V:", 1);
-    Display->drawParam(           "Kd :", 3, kdVI, 2);
+    Display->drawParam(           "Kd :", 3, kdC, 2);
     Display->clearLine(                   4, 7);
     mark = 3;
     Display->newBtn(MDisplay::SAVE, MDisplay::UP, MDisplay::DN);
   }
 
-  MState *MLoadKdV::fsm()
+  MState *MLoadKd::fsm()
   {
     switch (Display->getKey())
     {
-      case MDisplay::SAVE:  Tools->writeNvsFloat("device", "kdV", kdVI);
-                            Tools->txSetPidCoeffV(kpVI, kiVI, kdVI);       // 0x41 Применить
-                            return new MAdjPidVI(Tools);
-      case MDisplay::UP:    kdVI = Tools->updnFloat(kdVI, dn, up, +0.01);
+      case MDisplay::SAVE:  Tools->writeNvsFloat("device", "kdV", kdC);
+                            Tools->txSetPidCoeffV(kpC, kiC, kdC);       // 0x41 Применить
+                            return new MAdjPid(Tools);
+      case MDisplay::UP:    kdC = Tools->updnFloat(kdC, dn, up, +0.01);
                             Display->drawLabel("Voltage kd changed:", 1);
-                            Display->drawParam(             "Kd V :", 3, kdVI, 2, mark);
-                            Tools->txSetPidCoeffV(kpVI, kiVI, kdVI);               // 0x41 Применить
+                            Display->drawParam(             "Kd V :", 3, kdC, 2, mark);
+                            Tools->txSetPidCoeffV(kpC, kiC, kdC);               // 0x41 Применить
                             break;
-      case MDisplay::DN:    kdVI = Tools->updnFloat(kdVI, dn, up, -0.01);
+      case MDisplay::DN:    kdC = Tools->updnFloat(kdC, dn, up, -0.01);
                             Display->drawLabel("Voltage kd changed:", 1);
-                            Display->drawParam(             "Kd V :", 3, kdVI, 2, mark);
-                            Tools->txSetPidCoeffV(kpVI, kiVI, kdVI);               // 0x41 Применить
+                            Display->drawParam(             "Kd V :", 3, kdC, 2, mark);
+                            Tools->txSetPidCoeffV(kpC, kiC, kdC);               // 0x41 Применить
                             break;
       default:;
     }
     (Tools->getState() == Tools->getStatusPidVoltage()) ? 
                                      Board->ledsGreen() : Board->ledsRed();
     return this;
-  };  //MLoadKdV
+  };  //MLoadKd
 
 
 
 
 
 
-//========== MLoadSp, ввод порога PID-регулятора ========================= 
+//========== MLoadSp, ввод порога PID-регулятора разряда ================= 
 
   MLoadSp::MLoadSp(MTools *Tools) : MState(Tools)
   {
@@ -751,10 +757,14 @@ namespace MDevice
   {
     switch (Display->getKey())
     {
-      case MDisplay::PAUSE:  Tools->writeNvsShort("device", "spD", spD);
+      case MDisplay::PAUSE: Tools->writeNvsShort("device", "spD", spD);
                             // Включить (0x24)или отключить (0x21)    // д.б. STOP/GO
-            (Tools->getState() == Tools->getStatusPidDiscurrent()) ?
-                                              Tools->txPowerStop() : Tools->txDischargeGo(spD);
+            // (Tools->getState() == Tools->getStatusPidDiscurrent()) ?
+            //                                   Tools->txPowerStop() : Tools->txDischargeGo(spD);
+
+                            Tools->dischargeStopGo(spD); 
+
+
                             return new MAdjPidD(Tools);
       case MDisplay::UP:    spD = Tools->updnInt(spD, dn, up, delta);
                             Display->drawLabel("Setpoint D changed:", 1);
@@ -768,8 +778,9 @@ namespace MDevice
                             break;
       default:;
     }
-    (Tools->getState() == Tools->getStatusPidDiscurrent()) ? 
-                                        Board->ledsGreen() : Board->ledsRed();
+    // (Tools->getState() == Tools->getStatusPidDiscurrent()) ? 
+    //                                     Board->ledsGreen() : Board->ledsRed();
+    Tools->ledStopGo();
     return this;
   };
 
@@ -807,8 +818,9 @@ namespace MDevice
                             break;
       default:;
     }
-    (Tools->getState() == Tools->getStatusPidDiscurrent()) ? 
-                                        Board->ledsGreen() : Board->ledsRed();
+    // (Tools->getState() == Tools->getStatusPidDiscurrent()) ? 
+    //                                     Board->ledsGreen() : Board->ledsRed();
+    Tools->ledStopGo();                                    
     return this;
   };
 
@@ -843,8 +855,9 @@ namespace MDevice
                             break;
       default:;
     }
-    (Tools->getState() == Tools->getStatusPidDiscurrent()) ? 
-                                        Board->ledsGreen() : Board->ledsRed();
+    // (Tools->getState() == Tools->getStatusPidDiscurrent()) ? 
+    //                                     Board->ledsGreen() : Board->ledsRed();
+    Tools->ledStopGo();
     return this;
   };
 
@@ -879,8 +892,9 @@ namespace MDevice
                             break;
       default:;
     }
-    (Tools->getState() == Tools->getStatusPidDiscurrent()) ? 
-                                        Board->ledsGreen() : Board->ledsRed();
+    // (Tools->getState() == Tools->getStatusPidDiscurrent()) ? 
+    //                                     Board->ledsGreen() : Board->ledsRed();
+    Tools->ledStopGo();
     return this;
   };
 

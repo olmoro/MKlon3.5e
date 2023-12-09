@@ -675,3 +675,11 @@ void MTools::autoIdleGo(short spV, short spI)
    (getState() == getStatusPidCurrent())) ?  /* 0x2A : 0x20 */
                                  txIdle() : txPowerAuto(spV, spI);
 }
+
+
+
+void MTools::dischargeStopGo(short spD)
+{
+  (getState() == getStatusPidDiscurrent()) ?
+                             txPowerStop() : txDischargeGo(spD);
+}
