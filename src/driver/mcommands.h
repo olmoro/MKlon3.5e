@@ -85,24 +85,25 @@ class MCommands
     void doPidGetTreaty();              // 0x47   
     void doPidGetConfigure();           // 0x48   
 //    void doPidSetMaxSum();              // 0x49    nu
-    //void doPidSetTreaty();              // 0x4A (резерв)  
+    //void doPidSetTreaty();              // 0x4A (резерв) 
+  #ifndef HZ1000
     void doPidSetFrequency();           // 0x4A
-      
-        // Команды работы с АЦП
+  #endif    
+    //     // Команды работы с АЦП
     void doReadProbes();                // 0x50   
-    void doAdcGetOffset();              // 0x51   nu
-    void doAdcSetOffset();              // 0x52   nu
-    void doAdcAutoOffset();             // 0x53   nu
+    // void doAdcGetOffset();              // 0x51   nu
+    // void doAdcSetOffset();              // 0x52   nu
+    // void doAdcAutoOffset();             // 0x53   nu
 
-        // Команды тестовые
-    void doSwPin();                     // 0x54   nu
-    void doSetPower();                  // 0x56   nu
-    void doSetDischg();                 // 0x57   nu
-    void doSetVoltage();                // 0x58   nu
-    void doSetCurrent();                // 0x59   nu
-    void doSetDiscurrent();             // 0x5A   nu
-    void doSurgeCompensation();         // 0x5B   nu
-    void doIdleLoad();                  // 0x5C   nu
+    //     // Команды тестовые
+    // void doSwPin();                     // 0x54   nu
+    // void doSetPower();                  // 0x56   nu
+    // void doSetDischg();                 // 0x57   nu
+    // void doSetVoltage();                // 0x58   nu
+    // void doSetCurrent();                // 0x59   nu
+    // void doSetDiscurrent();             // 0x5A   nu
+    // void doSurgeCompensation();         // 0x5B   nu
+    // void doIdleLoad();                  // 0x5C   nu
 
         // Команды задания порогов отключения
     void doGetLtV();                    // 0x60

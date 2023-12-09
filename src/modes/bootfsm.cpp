@@ -64,35 +64,41 @@ namespace MBoot
     else return this;
 #else
     Tools->txPowerStop();                               // 0x21  Команда драйверу
-    return new MTxSetFrequency(Tools);
+    #ifdef HZ1000
+      return new MTxGetTreaty(Tools);
+    #else
+      return new MTxSetFrequency(Tools);
+    #endif
 #endif
   };
 
-  MTxSetFrequency::MTxSetFrequency(MTools * Tools) : MState(Tools)
-  {
-    i = Tools->readNvsShort("device", "freq", MPrj::pid_frequency_default);   // Взять сохраненное из nvs.
-#ifdef BOOT_STEP
-    Display->drawLabel( "Pid Frequency", 2 );
-#endif
-  }
-
-  MState * MTxSetFrequency::fsm()
-  {
-    if(i <= 0) i = 0;      if(i >= 5) i = 5;
-
-#ifdef BOOT_STEP
-    if ( Display->getKey( MDisplay::NEXT ) )
+#ifndef HZ1000
+    MTxSetFrequency::MTxSetFrequency(MTools * Tools) : MState(Tools)
     {
+      i = Tools->readNvsShort("device", "freq", MPrj::pid_frequency_default);   // Взять сохраненное из nvs.
+  #ifdef BOOT_STEP
+      Display->drawLabel( "Pid Frequency", 2 );
+  #endif
+    }
+
+    MState * MTxSetFrequency::fsm()
+    {
+      if(i <= 0) i = 0;      if(i >= 5) i = 5;
+
+  #ifdef BOOT_STEP
+      if ( Display->getKey( MDisplay::NEXT ) )
+      {
+        Tools->txSetPidFrequency(MPrj::f_hz[i]);                  // 0x4A  Команда драйверу
+        return new MTxGetTreaty(Tools);
+      }
+      else return this;
+  #else
       Tools->txSetPidFrequency(MPrj::f_hz[i]);                  // 0x4A  Команда драйверу
       return new MTxGetTreaty(Tools);
-    }
-    else return this;
-#else
-    Tools->txSetPidFrequency(MPrj::f_hz[i]);                  // 0x4A  Команда драйверу
-    return new MTxGetTreaty(Tools);
+  #endif
+    };
 #endif
-  };
-  
+
   // Получить согласованные данные для обмена с драйвером.
   MTxGetTreaty::MTxGetTreaty(MTools * Tools) : MState(Tools)
   {

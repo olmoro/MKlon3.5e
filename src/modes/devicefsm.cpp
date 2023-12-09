@@ -139,9 +139,9 @@ namespace MDevice
     spV = Tools->readNvsShort("device", "spV", sp_u_default);
     spI = Tools->readNvsShort("device", "spI", sp_i_default);
     // Восстановление пользовательских kp, ki, kp
-    kpVI = Tools->readNvsFloat("device", "kpV", MPrj::kp_v_default);
-    kiVI = Tools->readNvsFloat("device", "kiV", MPrj::ki_v_default);
-    kdVI = Tools->readNvsFloat("device", "kdV", MPrj::kd_v_default);
+    kpVI = Tools->readNvsFloat("device", "kpV", MPrj::kp_default);
+    kiVI = Tools->readNvsFloat("device", "kiV", MPrj::ki_default);
+    kdVI = Tools->readNvsFloat("device", "kdV", MPrj::kd_default);
     Tools->txSetPidCoeffI(kpVI, kiVI, kdVI);                           // 0x41 Применить
 
     mark = 2;

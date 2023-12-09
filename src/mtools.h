@@ -231,31 +231,33 @@ class MTools
     void txGetPidTreaty();                                  // 0x47* Get shift, bits, hz
     void txGetPidConfig();                                  // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
     //void txSetPidTreaty(unsigned short shift, unsigned short bits, unsigned short hz);  // 0x4A Запись
+  #ifndef HZ1000
     void txSetPidFrequency(unsigned short hz);              // 0x4A* Запись
-    
-    void txGetProbes();                                     // 0x50
-    void txGetAdcOffset();                                  // 0x51
-    void txSetAdcOffset(short val);                         // 0x52
-    void txAdcAutoOffset();                                 // 0x53 (пока в резерве)
+  #endif  
+
+  //   void txGetProbes();                                     // 0x50
+  //   void txGetAdcOffset();                                  // 0x51
+  //   void txSetAdcOffset(short val);                         // 0x52
+  //   void txAdcAutoOffset();                                 // 0x53 (пока в резерве)
 
 
-      // Команды тестовые (отменены?)
-    // const uint8_t cmd_set_switch_pin            = 0x54; // sw_pin D4 PA14
+  //     // Команды тестовые (отменены?)
+  //   // const uint8_t cmd_set_switch_pin            = 0x54; // sw_pin D4 PA14
 
-    // const uint8_t cmd_set_power                 = 0x56; // пользоваться с осторожностью - выяснение пределов регулирования
-    // const uint8_t cmd_set_discharge             = 0x57; // не проверена
-    // const uint8_t cmd_set_voltage               = 0x58; // старая, не проверена
-    // const uint8_t cmd_set_current               = 0x59; // старая, не проверена 
-    // const uint8_t cmd_set_discurrent            = 0x5A; // старая, не проверена
+  //   // const uint8_t cmd_set_power                 = 0x56; // пользоваться с осторожностью - выяснение пределов регулирования
+  //   // const uint8_t cmd_set_discharge             = 0x57; // не проверена
+  //   // const uint8_t cmd_set_voltage               = 0x58; // старая, не проверена
+  //   // const uint8_t cmd_set_current               = 0x59; // старая, не проверена 
+  //   // const uint8_t cmd_set_discurrent            = 0x5A; // старая, не проверена
 
-  //   void txSetCurrent(unsigned short val);     // 0x59  // 20231024
+  // //   void txSetCurrent(unsigned short val);     // 0x59  // 20231024
 
-    //void txSetDiscurrent(uint8_t m, unsigned short val); // 0x5A      case MCmd::cmd_write_discurrent:          doSetDiscurrent();        break;  // 0x5A na
-    void txSetDiscurrent(unsigned short val);     // 0x5A  // 20231022 
-     //case MCmd::cmd_write_discurrent:          doSetDiscurrent();        break;  // 0x5A na
+  //   //void txSetDiscurrent(uint8_t m, unsigned short val); // 0x5A      case MCmd::cmd_write_discurrent:          doSetDiscurrent();        break;  // 0x5A na
+  //   void txSetDiscurrent(unsigned short val);     // 0x5A  // 20231022 
+  //    //case MCmd::cmd_write_discurrent:          doSetDiscurrent();        break;  // 0x5A na
 
-    // const uint8_t cmd_set_surge_compensation    = 0x5B; // параметры подавления всплеска напряжения na
-    // const uint8_t cmd_set_idle_load             = 0x5C; // параметры доп.нагрузки ХХ
+  //   // const uint8_t cmd_set_surge_compensation    = 0x5B; // параметры подавления всплеска напряжения na
+  //   // const uint8_t cmd_set_idle_load             = 0x5C; // параметры доп.нагрузки ХХ
 
     // Команды задания порогов отключения
     void txGetLtV();                                        // 0x60

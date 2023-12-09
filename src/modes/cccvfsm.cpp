@@ -44,8 +44,9 @@
 namespace MCccv
 {
   short maxV, maxI, minI, minV;                 // Заданные параметры заряда
-  float kpV, kiV, kdV;                          // Заданные коэффициенты ПИД-регулятора напряжения
-  float kpI, kiI, kdI;                          // Заданные коэффициенты ПИД-регулятора тока
+  float kp, ki, kd;                          // Заданные коэффициенты ПИД-регулятора 
+  //напряжения
+//  float kpI, kiI, kdI;                          // Заданные коэффициенты ПИД-регулятора тока
   short voltageNom    = MPrj::nominal_v_fixed;  // Номинальное напряжение батареи, вольты 
   short capacity      = MPrj::capacity_fixed;   // Ёмкость батареи, ампер-часы
   short timeOut       = MPrj::timeout_fixed;    // Длительность заряда, часы
@@ -130,20 +131,20 @@ namespace MCccv
   {
     Tools->postpone = Tools->readNvsShort("options", "postpone", MPrj::postpone_fixed);
       // Восстановление пользовательских kp, ki, kd
-    kpI = Tools->readNvsFloat("device", "kpI", MPrj::kp_i_default);
-    kiI = Tools->readNvsFloat("device", "kiI", MPrj::ki_i_default);
-    kdI = Tools->readNvsFloat("device", "kdI", MPrj::kd_i_default);
+    kp = Tools->readNvsFloat("device", "kpI", MPrj::kp_default);
+    ki = Tools->readNvsFloat("device", "kiI", MPrj::ki_default);
+    kd = Tools->readNvsFloat("device", "kdI", MPrj::kd_default);
     
 //  Serial.print("\nkp="); Serial.print(kpI, 2);  
 //  Serial.print("\nki="); Serial.print(kiI, 2);  
 //  Serial.print("\nkd="); Serial.print(kdI, 2);  
     
-    Tools->txSetPidCoeffI(kpI, kiI, kdI);                             // 0x41* Применить
+    Tools->txSetPidCoeffI(kp, ki, kd);                             // 0x41* Применить
  
-    kpV = Tools->readNvsFloat("device", "kpV", MPrj::kp_v_default);
-    kiV = Tools->readNvsFloat("device", "kiV", MPrj::ki_v_default);
-    kdV = Tools->readNvsFloat("device", "kdV", MPrj::kd_v_default);
-    Tools->txSetPidCoeffV(kpV, kiV, kdV);                             // 0x41* Применить
+    // kpV = Tools->readNvsFloat("device", "kpV", MPrj::kp_v_default);
+    // kiV = Tools->readNvsFloat("device", "kiV", MPrj::ki_v_default);
+    // kdV = Tools->readNvsFloat("device", "kdV", MPrj::kd_v_default);
+    Tools->txSetPidCoeffV(kp, ki, kd);                             // 0x41* Применить
 
       // Инициализация счетчика времени до старта
     Tools->setTimeCounter( Tools->postpone * 36000 );    // Отложенный старт ( * 0.1s в этой версии)
@@ -187,9 +188,9 @@ namespace MCccv
     Display->clearLine(                   2);
     Display->drawParFl(  "SetpointI, A:", 3, maxI, 2);
     Display->drawParFl(  "Wait maxV, V:", 4, maxV, 2);
-    Display->drawParam(           "KpI:", 5,  kpI, 2);
-    Display->drawParam(           "KiI:", 6,  kiI, 2);
-    Display->drawParam(           "KdI:", 7,  kdI, 2);
+    Display->drawParam(            "Kp:", 5,   kp, 2);
+    Display->drawParam(            "Ki:", 6,   ki, 2);
+    Display->drawParam(            "Kd:", 7,   kd, 2);
 //    Board->ledsGreen();
     Display->newBtn( MDisplay::STOP, MDisplay::NEXT);
       // Обнуляются счетчики времени и отданного заряда
@@ -267,9 +268,9 @@ namespace MCccv
     Display->clearLine(                    2);
     Display->drawParFl(   "SetpointV, V:", 3, maxV, 2);
     Display->drawParFl(   "Wait minI, A:", 4, minI, 2);
-    Display->drawParam(            "KpV:", 5,  kpV, 2);
-    Display->drawParam(            "KiV:", 6,  kiV, 2);
-    Display->drawParam(            "KdV:", 7,  kdV, 2);
+    Display->drawParam(             "Kp:", 5,   kp, 2);
+    Display->drawParam(             "Ki:", 6,   ki, 2);
+    Display->drawParam(             "Kd:", 7,   kd, 2);
     Display->newBtn(MDisplay::STOP, MDisplay::NEXT);
 //    Board->ledsYellow();
   }

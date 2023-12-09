@@ -530,13 +530,15 @@ void MTools::txGetPidConfig()                         {buffCmd = MCmd::cmd_pid_r
 //     buffCmd = MCmd::cmd_pid_write_treaty;                                                             // 0x4A Запись
 // }
 
+#ifndef HZ1000
 // Ввод частоты PID-регулятора                                    0x4A
-void MTools::txSetPidFrequency(unsigned short hz)
-{
-  pidHz   = hz;
-  buffCmd = MCmd::cmd_pid_write_frequency;                // 0x4A Запись
-  vTaskDelay(80 / portTICK_PERIOD_MS);
-}
+  void MTools::txSetPidFrequency(unsigned short hz)
+  {
+    pidHz   = hz;
+    buffCmd = MCmd::cmd_pid_write_frequency;                // 0x4A Запись
+    vTaskDelay(80 / portTICK_PERIOD_MS);
+  }
+#endif
 
 // void MTools::txSetCurrent(unsigned short val)     // 0x59
 // {
@@ -557,20 +559,20 @@ void MTools::txSetPidFrequency(unsigned short hz)
 //   buffCmd = MCmd::cmd_write_discurrent;
 // }  // doSetDiscurrent();
 
-  // 0x5A Установка тока разряда                20231022
-void MTools::txSetDiscurrent(unsigned short val)
-{
-  pidMode   = MPrj::RD;
-  setpointD = val;
-  buffCmd = MCmd::cmd_write_discurrent;   // 0x5A
-}  // doSetDiscurrent();
+//   // 0x5A Установка тока разряда                20231022
+// void MTools::txSetDiscurrent(unsigned short val)
+// {
+//   pidMode   = MPrj::RD;
+//   setpointD = val;
+//   buffCmd = MCmd::cmd_write_discurrent;   // 0x5A
+// }  // doSetDiscurrent();
 
 
-  // Команды работы с АЦП
-void MTools::txGetProbes()                              {buffCmd = MCmd::cmd_adc_read_probes;}        // 0x50
-void MTools::txGetAdcOffset()                           {buffCmd = MCmd::cmd_adc_read_offset;}        // 0x51  
-void MTools::txSetAdcOffset(short val) {offsetAdc = val; buffCmd = MCmd::cmd_adc_write_offset;}       // 0x52
-void MTools::txAdcAutoOffset()                          {buffCmd = MCmd::cmd_adc_auto_offset;}        // 0x53 nu 
+//   // Команды работы с АЦП
+// void MTools::txGetProbes()                              {buffCmd = MCmd::cmd_adc_read_probes;}        // 0x50
+// void MTools::txGetAdcOffset()                           {buffCmd = MCmd::cmd_adc_read_offset;}        // 0x51  
+// void MTools::txSetAdcOffset(short val) {offsetAdc = val; buffCmd = MCmd::cmd_adc_write_offset;}       // 0x52
+// void MTools::txAdcAutoOffset()                          {buffCmd = MCmd::cmd_adc_auto_offset;}        // 0x53 nu 
 
   // Команды управления тестовые
 
