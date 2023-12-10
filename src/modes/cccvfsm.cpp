@@ -17,9 +17,9 @@
   переходами от одного состояния к другому в процессе тестирования до нескольких минут, 
   да и гонять батарею, сокращая её жизненный цикл жалко.
     Данная версия CCCV представляет минималистический вариант: исключены такие состояния, 
-  как предзаряд, дозаряд, хранение, использование профилей пользователя, реализация которых 
-  не составит труда для владеющего технологией программирования в среде Arduino и четкого 
-  представления о принципе работы конечного автомата. 
+  как предзаряд, дозаряд, хранение, использование профилей пользователя и т.п., реализация
+  которых   не составит труда для владеющего технологией программирования в среде Arduino 
+  и четкого представления о принципе работы конечного автомата. 
     Нетрудно заметить, что каждое состояние, описываемое своим классом, в конструкторах
   классов в значительной степени повторяется. С одной стороны это приводит к дополнительному 
   расходу памяти, но позволяет абстрагироваться от необходимости держать в голове массу
@@ -28,7 +28,7 @@
   не так ли?
     И напоследок: замечено, что не следует создавать сложные состояния, лучше их дробить
   на более простые. 
-  Версия от 08.12.2023 
+  Версия от 10.12.2023 
 */
 
 #include "modes/cccvfsm.h"
@@ -44,9 +44,7 @@
 namespace MCccv
 {
   short maxV, maxI, minI, minV;                 // Заданные параметры заряда
-  float kp, ki, kd;                          // Заданные коэффициенты ПИД-регулятора 
-  //напряжения
-//  float kpI, kiI, kdI;                          // Заданные коэффициенты ПИД-регулятора тока
+  float kp, ki, kd;                             // Заданные коэффициенты ПИД-регулятора 
   short voltageNom    = MPrj::nominal_v_fixed;  // Номинальное напряжение батареи, вольты 
   short capacity      = MPrj::capacity_fixed;   // Ёмкость батареи, ампер-часы
   short timeOut       = MPrj::timeout_fixed;    // Длительность заряда, часы
@@ -98,9 +96,9 @@ namespace MCccv
     Board->ledsOn();  // Подтверждение входа в любой режим белым свечением светодиода
   }
 
-  MState *MStart::fsm()   // Вызов виртуальной функции
+  MState *MStart::fsm()           // Вызов виртуальной функции
   {
-    switch (Display->getKey())    //Здесь так можно
+    switch (Display->getKey())    // Здесь так можно
     {
       case MDisplay::STOP:    return new MStop(Tools);          // Прервано оператором
       case MDisplay::START:   return new MPostpone(Tools);
@@ -120,13 +118,11 @@ namespace MCccv
   MPostpone::MPostpone(MTools * Tools) : MState(Tools)
   {
     Tools->postpone = Tools->readNvsShort("options", "postpone", MPrj::postpone_fixed);
-      // Восстановление пользовательских kp, ki, kd
+      // Восстановление пользовательских kp, ki, kd для заряда
     kp = Tools->readNvsFloat("device", "kpC", MPrj::kp_c_default);
     ki = Tools->readNvsFloat("device", "kiC", MPrj::ki_c_default);
     kd = Tools->readNvsFloat("device", "kdC", MPrj::kd_c_default);
 
-  //  Tools->txSetPidCoeffI(kp, ki, kd);                             // 0x41* Применить
- 
     Tools->txSetPidCoeffC(kp, ki, kd);                             // 0x41* Применить
 
       // Инициализация счетчика времени до старта
@@ -181,11 +177,12 @@ namespace MCccv
 
     /* Включение преобразователя и коммутатора драйвером силовой платы.
      Параметры PID-регулятора заданы в настройках прибора (DEVICE).
-     Здесь задаются сетпойнты по напряжению и току. Подъем тока
-     производится ПИД-регулятором.
+     Здесь задаются сетпойнты по напряжению и току. Скорость нарастания тока
+     может производиться коррекцией коэффициентов ПИД-регулятора, но здесь
+     использован прием с нарастанием порога регулирования.
     */ 
     Tools->txPidClear();                  // 0x44*
-    target = maxI; //minI;                        // Начальное задание тока
+    target = minI;                        // Начальное задание тока
     Tools->txPowerAuto(maxV, target);     /* 0x20*  Команда драйверу запустить ПИД-регулятор
                                           в автоматическом режиме */
   }
@@ -214,10 +211,6 @@ namespace MCccv
     {
       target += 50;
       if(target >= maxI) target = maxI;
-
-  //Serial.print("\nI="); Serial.print(target, HEX);  Serial.print(" "); Serial.print(maxI, HEX);
-
-
       Tools->txCurrentAdj(target);                      // 0x26 применить
     }
 
@@ -227,10 +220,9 @@ namespace MCccv
     /* Уровни сглаживания можно не вводить всякий раз, однако при выходе из режима CCCV 
     всётаки лучше будет (не здесь!) их вернуть к уровню 2. */
     Tools->showVolt(Tools->getRealVoltage(), 2, 3);
-    Tools->showAmp (Tools->getRealCurrent(), 2, 3);
+    Tools->showAmp (Tools->getRealCurrent(), 3, 3);
 
-    Tools->ledStopGo();     /* RED : Green */
-
+    Tools->ledStopGo();     /* STATUS ? RED : Green */
     return this;  };
 
 
@@ -273,9 +265,10 @@ namespace MCccv
     // Индикация фазы удержания максимального напряжения (текущие)
     Display->showDuration(Tools->getChargeTimeCounter(), MDisplay::SEC);
     Display->showAh(Tools->getAhCharge());
-    Tools->showVolt(Tools->getRealVoltage(), 2, 2); //Вольты покажем во всей красе
+    Tools->showVolt(Tools->getRealVoltage(), 3, 2); //Вольты покажем во всей красе
     Tools->showAmp (Tools->getRealCurrent(), 2, 3); //Скроем третий знак и отфильтруем
-      Tools->ledStopGo();     /* RED : Green */
+
+    Tools->ledStopGo();     /* RED : Green */
     return this; };
 
 
@@ -290,11 +283,11 @@ namespace MCccv
     Display->clearLine(                     2);
     Display->drawParFl(    "SetpointV, V:", 3, minV, 2);
     Display->drawShort("Wait timeout, hr:", 4, timeOut);
-    Display->clearLine(                     5, 7);
+    Display->clearLine(                  5, 7);
     Display->newBtn(MDisplay::STOP, MDisplay::NEXT);
 
     Tools->clrTimeCounter();      // Обнуляются счетчики времени
-        target = maxV;
+    target = maxV;
       // Порог регулирования по минимальному напряжению
     //Tools->txPowerAuto(minV, maxI);        // 0x20*  Команда драйверу
     Tools->txPowerAuto(target, maxI);        // 0x20*  Команда драйверу
@@ -312,7 +305,7 @@ namespace MCccv
       default:;
     }
 
-    // Пример плавного снижения напряжения, примерно в в секунду
+    // Пример плавного снижения напряжения, примерно в ... в секунду
     if(target != minV)
     {
       target -= 20;
@@ -333,7 +326,7 @@ namespace MCccv
         названным "beauty" лучшее сглаживание выводимого параметра (по умолчанию 2),
         что никоим образом не скажется на регулировании, а только отфильтрует 
         картинку на браузере и дисплее. Для отмены придётся задать "2" */
-    Tools->showVolt(Tools->getRealVoltage(), 2, 3);   // Зададим формат NN.NNN
+    Tools->showVolt(Tools->getRealVoltage(), 3, 3);   // Зададим формат NN.NNN
     Tools->showAmp (Tools->getRealCurrent(), 2, 3);
 
       Tools->ledStopGo();     /* RED : Green */
@@ -344,18 +337,10 @@ namespace MCccv
       о продолжительности и отданном заряде. */
   MStop::MStop(MTools * Tools) : MState(Tools)
   {
-  Tools->txPowerAuto(minV, 0);      // 0X20*
+    Tools->txPowerAuto(minV, 0);      // 0X20*
 
-
-    /*   Силовая часть переводится в режим пониженной мощности с подгрузкой разрядной 
-  цепи.
-
-*/
     Tools->txPowerStop();             // 0x21* Команда драйверу отключить преобразователь
-    //Tools->txPowerOff();      // 0x29*  Перевод в режим холостого хода
-    //Tools->txIdle();      // 0x2A*  Перевод в режим холостого хода
-
-
+ 
     Display->drawLabel(                 "CCCV", 0);
     Display->drawLabel("The charge is stopped", 1);
     Display->drawLabel(          "Statistics:", 2);
@@ -365,7 +350,6 @@ namespace MCccv
     Display->drawLabel(          ". . . . . .", 5);
     Display->drawLabel(          ". . . . . .", 6);
     Display->drawLabel(          ". . . . . .", 7);
-//    Board->ledsRed();                                     // Стоп-сигнал
     Display->newBtn(MDisplay::START, MDisplay::EXIT);
   }    
   MState * MStop::fsm()
@@ -378,8 +362,9 @@ namespace MCccv
     }
     Tools->showVolt(Tools->getRealVoltage(), 2, 2);
     Tools->showAmp (Tools->getRealCurrent(), 2, 2);
-      Tools->ledStopGo();     /* RED : Green */
-    return this; }; //MStop
+    Tools->ledStopGo();     /* RED : Green */
+    return this; 
+  }; //MStop
 
 
 
@@ -389,13 +374,13 @@ namespace MCccv
   MExit::MExit(MTools * Tools) : MState(Tools)
   {
     Tools->aboutMode(MDispatcher::CCCV);
-//    Board->ledsOff();
     Display->newBtn(MDisplay::GO, MDisplay::UP, MDisplay::DN);
   }
   MState *MExit::fsm() 
   { 
-      Tools->ledStopGo();     /* RED : Green */
-    return nullptr; 
-  };  // В меню
+    //Tools->ledStopGo();     /* RED : Green */
+    Board->ledsOff();
+    return nullptr;           // В меню
+  };
 
 }; //namespace MCccv

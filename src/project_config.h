@@ -26,9 +26,9 @@ namespace MPrj
   
   // Согласованные параметры ПИД-регуляторов SAMD21 (частный случай):
 #ifdef HZ1000
-  static constexpr unsigned short par_mult         = 0x8000;     // pMult
-  static constexpr unsigned short par_max          = 0x0001;     // pMax
-  static constexpr float par_float_max             = 1.0f;
+  static constexpr unsigned short par_mult         = 0x8000u;    // pMult
+  static constexpr unsigned short par_max          = 0x0001u;    // pMax
+  static constexpr          float par_float_max    = 1.0f;
 #else
   static constexpr unsigned short par_mult         = 0x0100;     // pMult
   static constexpr unsigned short par_max          = 0x00FF;     // pMax
