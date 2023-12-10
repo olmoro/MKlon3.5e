@@ -77,7 +77,7 @@ class MCommands
 
         // Команды работы с регуляторами
     void doPidConfigure();              // 0x40   
-    void doPidSetCoefficients();        // 0x41   
+    void doPidSetCoefficients();        // 0x41*   
     void doPidOutputRange();            // 0x42   
     void doPidReconfigure();            // 0x43   
     void doPidClear();                  // 0x44   

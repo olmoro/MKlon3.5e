@@ -37,20 +37,13 @@ namespace MPrj
   static constexpr short pid_frequency_default  = 3u; // 100Hz ([10, 20, 50, 100, 200, 250])
 #endif
   
-  static constexpr float kp_default = 0.25f;
-  static constexpr float ki_default = 0.45f;
-  static constexpr float kd_default = 0.00f;
-  
-  // static constexpr float kp_i_default = 0.25f;
-  // static constexpr float ki_i_default = 0.45f;
-  // static constexpr float kd_i_default = 0.00f;
-  
+  static constexpr float kp_c_default = 0.25f;
+  static constexpr float ki_c_default = 0.45f;
+  static constexpr float kd_c_default = 0.00f;
+   
   static constexpr float kp_d_default = 0.55f;
   static constexpr float ki_d_default = 0.50f;
   static constexpr float kd_d_default = 0.00f;
-
-
-
 
   // Дефолтные для ввода пользовательских параметров
   static constexpr short postpone_fixed  =  0u;

@@ -220,8 +220,9 @@ class MTools
     void txSetPidConfig(uint8_t m, float kp, float ki, float kd, uint16_t minOut, uint16_t maxOut);   // 0x40 Запись
 
     void txSetPidCoeff(unsigned short m, float kp, float ki, float kd);    // 0x41 Запись
-    void txSetPidCoeffV(float kp, float ki, float kd);      // 0x41* Запись
-    void txSetPidCoeffI(float kp, float ki, float kd);      // 0x41* Запись
+    // void txSetPidCoeffV(float kp, float ki, float kd);      // 0x41* Запись
+    // void txSetPidCoeffI(float kp, float ki, float kd);      // 0x41* Запись
+    void txSetPidCoeffC(float kp, float ki, float kd);      // 0x41* Запись
     void txSetPidCoeffD(float kp, float ki, float kd);      // 0x41* Запись
 
     void txSetPidOutputRange(uint8_t m, uint16_t minOut, uint16_t maxOut);                               // 0x42

@@ -24,10 +24,14 @@ MPidFrequency
 MLoadKpI  MLoadKiI  MLoadKdI
 
 Переименовано:
-MAdjPidV ->  MAdjPidVI
-kpV      ->  kpVI
+MAdjPidV ->  MAdjPidVI  -> MAdjPidC (Charge)
+kpV      ->  kpVI       -> kp
 
 Новые:
   void ledStopGo();
   void autoStopGo(short spV, short spI);
   void autoIdleGo(short spV, short spI);
+
+RAM:   [=         ]   9.1% (used 48500 bytes from 532480 bytes)
+Flash: [========= ]  93.6% (used 1226790 bytes from 1310720 bytes)
+                                 1226382

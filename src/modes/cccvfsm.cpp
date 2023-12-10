@@ -121,13 +121,13 @@ namespace MCccv
   {
     Tools->postpone = Tools->readNvsShort("options", "postpone", MPrj::postpone_fixed);
       // Восстановление пользовательских kp, ki, kd
-    kp = Tools->readNvsFloat("device", "kpI", MPrj::kp_default);
-    ki = Tools->readNvsFloat("device", "kiI", MPrj::ki_default);
-    kd = Tools->readNvsFloat("device", "kdI", MPrj::kd_default);
+    kp = Tools->readNvsFloat("device", "kpC", MPrj::kp_c_default);
+    ki = Tools->readNvsFloat("device", "kiC", MPrj::ki_c_default);
+    kd = Tools->readNvsFloat("device", "kdC", MPrj::kd_c_default);
 
-    Tools->txSetPidCoeffI(kp, ki, kd);                             // 0x41* Применить
+  //  Tools->txSetPidCoeffI(kp, ki, kd);                             // 0x41* Применить
  
-    Tools->txSetPidCoeffV(kp, ki, kd);                             // 0x41* Применить
+    Tools->txSetPidCoeffC(kp, ki, kd);                             // 0x41* Применить
 
       // Инициализация счетчика времени до старта
     Tools->setTimeCounter( Tools->postpone * 36000 );    // Отложенный старт ( * 0.1s в этой версии)

@@ -88,7 +88,7 @@ void MCommands::doCommand()
 
         // Команды работы с ПИД-регулятором
       case MCmd::cmd_pid_configure:             doPidConfigure();         break;  // 0x40
-      case MCmd::cmd_pid_write_coefficients:    doPidSetCoefficients();   break;  // 0x41
+      case MCmd::cmd_pid_write_coefficients:    doPidSetCoefficients();   break;  // 0x41*
       case MCmd::cmd_pid_output_range:          doPidOutputRange();       break;  // 0x42
       case MCmd::cmd_pid_reconfigure:           doPidReconfigure();       break;  // 0x43
       case MCmd::cmd_pid_clear:                 doPidClear();             break;  // 0x44

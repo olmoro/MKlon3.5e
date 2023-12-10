@@ -445,8 +445,37 @@ void MTools::txSetPidCoeff(unsigned short m, float _kp, float _ki, float _kd)   
     buffCmd = MCmd::cmd_pid_write_coefficients;                                                      // 0x41 Запись
 }
 
+//   // 0x41 Запись
+// void MTools::txSetPidCoeffV(float _kp, float _ki, float _kd)
+// {
+//   pidMode = MPrj::RU; //      1;
+//   kp      = (unsigned short) (_kp * MPrj::par_mult);
+//   ki      = (unsigned short) (_ki * MPrj::par_mult);
+//   kd      = (unsigned short) (_kd * MPrj::par_mult);
+//   buffCmd = MCmd::cmd_pid_write_coefficients;
+//   vTaskDelay(80 / portTICK_PERIOD_MS);
+// }
+
+//   // 0x41 Запись
+// void MTools::txSetPidCoeffI(float _kp, float _ki, float _kd)
+// {
+//   pidMode = MPrj::RI;   //2;
+//   kp      = (unsigned short) (_kp * MPrj::par_mult);
+    
+// //  Serial.print("\n_kp="); Serial.print(_kp, 2);
+// //  Serial.print("\npMult=0x"); Serial.print(pMult, HEX);
+// //  Serial.print("\nkp=0x"); Serial.print(kp, HEX);
+
+//   ki      = (unsigned short) (_ki * MPrj::par_mult);
+//   kd      = (unsigned short) (_kd * MPrj::par_mult);
+//   buffCmd = MCmd::cmd_pid_write_coefficients; 
+//   vTaskDelay(80 / portTICK_PERIOD_MS);
+// }
+
+
+
   // 0x41 Запись
-void MTools::txSetPidCoeffV(float _kp, float _ki, float _kd)
+void MTools::txSetPidCoeffC(float _kp, float _ki, float _kd)
 {
   pidMode = MPrj::RU; //      1;
   kp      = (unsigned short) (_kp * MPrj::par_mult);
@@ -456,29 +485,15 @@ void MTools::txSetPidCoeffV(float _kp, float _ki, float _kd)
   vTaskDelay(80 / portTICK_PERIOD_MS);
 }
 
-  // 0x41 Запись
-void MTools::txSetPidCoeffI(float _kp, float _ki, float _kd)
-{
-  pidMode = MPrj::RI;   //2;
-  kp      = (unsigned short) (_kp * MPrj::par_mult);
-    
-//  Serial.print("\n_kp="); Serial.print(_kp, 2);
-//  Serial.print("\npMult=0x"); Serial.print(pMult, HEX);
-//  Serial.print("\nkp=0x"); Serial.print(kp, HEX);
 
-  ki      = (unsigned short) (_ki * MPrj::par_mult);
-  kd      = (unsigned short) (_kd * MPrj::par_mult);
-  buffCmd = MCmd::cmd_pid_write_coefficients; 
-  vTaskDelay(80 / portTICK_PERIOD_MS);
-}
-
+  // 0x41*
 void MTools::txSetPidCoeffD(float _kp, float _ki, float _kd)
 {
   pidMode = MPrj::RD;   //3;
   kp      = (unsigned short) (_kp * MPrj::par_mult);
   ki      = (unsigned short) (_ki * MPrj::par_mult);
   kd      = (unsigned short) (_kd * MPrj::par_mult);
-  buffCmd = MCmd::cmd_pid_write_coefficients;   // 0x41 Запись
+  buffCmd = MCmd::cmd_pid_write_coefficients;
   vTaskDelay(80 / portTICK_PERIOD_MS);
 
   // Serial.print("pMult=0x"); Serial.println(pMult, HEX);

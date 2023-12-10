@@ -180,7 +180,7 @@ namespace MDevice
 
 
 
-//===== MLoadSpV, ввод порога PID-регулятора заряда по напряжению ===== 
+//===== MLoadSpI, ввод порога PID-регулятора заряда по току ===== 
   class MLoadSpI : public MState
   {
     public:  
@@ -193,11 +193,11 @@ namespace MDevice
       static constexpr short delta =  200u;
   };
 
-//========== MLoadSp, ввод порога PID-регулятора разряда ================= 
-  class MLoadSp : public MState
+//========== MLoadSpD, ввод порога PID-регулятора разряда ================= 
+  class MLoadSpD : public MState
   {
     public:  
-      MLoadSp(MTools * Tools);
+      MLoadSpD(MTools * Tools);
       MState * fsm() override;
     private:
       // min/max для задания тока
