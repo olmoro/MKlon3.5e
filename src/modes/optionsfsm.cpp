@@ -43,7 +43,7 @@ namespace MOption
   short minV  = 0u;  // 
   short minI  = 0u;  // 
 
-  static int8_t line = -1;
+  static int8_t mark = -1;
 
   //========================================================================= MStart
   // Состояние "Старт", инициализация выбранного режима работы.
@@ -55,14 +55,14 @@ namespace MOption
     capacity = Tools->readNvsShort("options", "capacity", MPrj::capacity_fixed);
     tec      = Tools->readNvsShort("options", "akb",      MPrj::tec_fixed);
 
-    line = 1;
+    mark = 1;
     Display->drawLabel("Mode OPTIONS loaded:", 0); // Режим, если кто-то забыл, напоминание
-    Display->drawShort("Postpone, hr :", 1, postpone,    line); // От этой строки ниже можно выбирать
-    Display->drawShort("Timeout, hr :",  2, timeout,     line); // 
-    Display->drawParFl("NominalV, V :",  3, nominalV, 1, line); // 
-    Display->drawShort("Capacity, ah :", 4, capacity,    line); // 
-    Display->drawLabel(TypeAkb[tec],     5);                    // Выбранная технология
-    Display->drawLabel("Apply!",         6);                    // Вычисление параметров заряда
+    Display->drawAdj(TypeAkb[tec],       1,              mark); // Выбранная технология
+    Display->drawAdj("Apply!",           2,              mark); // Вычисление параметров заряда
+    Display->drawShort("Capacity, ah :", 3, capacity,    mark); // 
+    Display->drawShort("Postpone, hr :", 4, postpone,    mark); // От этой строки ниже можно выбирать
+    Display->drawShort("Timeout, hr :",  5, timeout,     mark); // 
+    Display->drawParFl("NominalV, V :",  6, nominalV, 1, mark); // 
     Display->clearLine(7);
     Board->ledsOn();                // Подтверждение входа в режим белым свечением
       /* Активировать группу кнопок для перехода к выбранному параметру,
@@ -74,24 +74,24 @@ namespace MOption
   {
     switch (Display->getKey())
     {
-      case MDisplay::STOP:                  return new MApply(Tools);   // Прервано оператором   
-      case MDisplay::NEXT:            (line >= 6) ? line = 1 : line++;  // Вниз по кругу
-        Display->drawShort("Postpone, hr :", 1, postpone,      line);   // "Огласите весь список, пожлста"
-        Display->drawShort("Timeout, hr :",  2, timeout,       line);   // 
-        Display->drawParFl("NominalV, V :",  3, nominalV, 1, line);   // 
-        Display->drawShort("Capacity, ah :", 4, capacity,      line);   // 
-        Display->drawAdj  (TypeAkb[tec],     5,                line);   //
-        Display->drawAdj  ("Apply!",         6,                line);   // Вычисление параметров заряда
+      case MDisplay::STOP:                return new MApply(Tools);   // Прервано оператором   
+      case MDisplay::NEXT:         ( mark >= 6) ? mark = 1 : mark++;   // Вниз по кругу
+        Display->drawAdj  (TypeAkb[tec],     1,              mark);   //
+        Display->drawAdj  ("Apply!",         2,              mark);   // Вычисление параметров заряда
+        Display->drawShort("Capacity, ah :", 3, capacity,    mark);   // 
+        Display->drawShort("Postpone, hr :", 4, postpone,    mark);   //
+        Display->drawShort("Timeout, hr :",  5, timeout,     mark);   // 
+        Display->drawParFl("NominalV, V :",  6, nominalV, 1, mark);   // 
         break;
       case MDisplay::GO:
-        switch (line)                               // Так нагляднее
+        switch (mark)                               // Так нагляднее
         {
-          case 1:   return new MSetPostpone(Tools);     // 
-          case 2:   return new MTimeout(Tools);         // 
-          case 3:   return new MNominalV(Tools);        // 
-          case 4:   return new MCapacity(Tools);        // 
-          case 5:   return new MAkb(Tools);             // По технологии
-          case 6:   return new MApply(Tools);           // Вычислить
+          case 1:   return new MAkb(Tools);             // По технологии
+          case 2:   return new MApply(Tools);           // Вычислить
+          case 3:   return new MCapacity(Tools);        // 
+          case 4:   return new MSetPostpone(Tools);     // 
+          case 5:   return new MTimeout(Tools);         // 
+          case 6:   return new MNominalV(Tools);        // 
           default:;
         }
       default:;
@@ -109,8 +109,8 @@ namespace MOption
     Display->drawLabel("OPTIONS", 0);                     // режим,
     Display->drawLabel("Adjusting postpone", 1);          // полное название параметра (жёлтым)
     Display->clearLine(2);
-    line = 3;                 // В строке 3 будет имя, размерность и значение параметра из Nvs
-    Display->drawShort("Postpone, hr :", line, postpone);
+    mark = 3;                 // В строке 3 будет имя, размерность и значение параметра из Nvs
+    Display->drawShort("Postpone, hr :", mark, postpone);
     Display->clearLine(4,7);                              // Остальные строки очищаются
     Board->ledsBlue();                                    // Синий - что-то меняется
     Display->newBtn(MDisplay::SAVE, MDisplay::UP, MDisplay::DN);   // Активировать группу кнопок
@@ -123,13 +123,13 @@ namespace MOption
       case MDisplay::UP:   postpone = Tools->updnInt(postpone, dn, up, +1);
         Display->drawLabel("OPTIONS", 0);
         Display->drawLabel("Postpone changed:", 1); 
-        Display->drawShort("Postpone, hr :", line, postpone, line); // Белым - когда значение изменено
+        Display->drawShort("Postpone, hr :", mark, postpone, mark); // Белым - когда значение изменено
         Tools->setPostpone(postpone);
         break;
       case MDisplay::DN:    postpone = Tools->updnInt(postpone, dn, up, -1);
         Display->drawLabel("OPTIONS", 0);
         Display->drawLabel("Postpone changed:", 1); 
-        Display->drawShort("Postpone, hr :", line, postpone, line); 
+        Display->drawShort("Postpone, hr :", mark, postpone, mark); 
         Tools->setPostpone(postpone);
         break;
       case MDisplay::SAVE:  Tools->writeNvsShort("options", "postpone", postpone);
@@ -152,7 +152,7 @@ namespace MOption
     Display->clearLine(                      4, 7);                      // Остальные строки очищаются
     Board->ledsBlue();                              // Синий - что-то меняется
     Display->newBtn(MDisplay::SAVE, MDisplay::UP, MDisplay::DN); // Активировать группу кнопок
-    line = 3;      // В строке 3 имя, размерность и значение параметра из Nvs
+    mark = 3;      // В строке 3 имя, размерность и значение параметра из Nvs
   }
 
   MState * MTimeout::fsm()
@@ -164,13 +164,13 @@ namespace MOption
       case MDisplay::UP:   timeout = Tools->updnInt(timeout, dn, up, +1);
         Display->drawLabel("OPTIONS", 0);
         Display->drawLabel("Timeout changed:", 1); 
-        Display->drawShort("Timeout, hr :", line, timeout, line);    // Белым - когда значение изменено
+        Display->drawShort("Timeout, hr :", mark, timeout, mark);    // Белым - когда значение изменено
         Tools->setTimeCounter(timeout);
         break;
       case MDisplay::DN:   timeout = Tools->updnInt(timeout, dn, up, -1);
         Display->drawLabel("OPTIONS", 0);
         Display->drawLabel("Timeout changed:", 1); 
-        Display->drawShort("Timeout, hr :", line, timeout, line); 
+        Display->drawShort("Timeout, hr :", mark, timeout, mark); 
         Tools->setTimeCounter(timeout);
         break;
       default:;
@@ -188,8 +188,8 @@ namespace MOption
     Display->drawLabel("OPTIONS", 0);                 // режим,
     Display->drawLabel("Adjusting nominalV", 1);      // полное название параметра (жёлтым)
     Display->clearLine(2);
-    line = 3;      // В строке 3 имя, размерность и значение параметра из Nvs
-    Display->drawParFl("NominalV, V :", line, nominalV, 1);
+    mark = 3;      // В строке 3 имя, размерность и значение параметра из Nvs
+    Display->drawParFl("NominalV, V :", mark, nominalV, 1);
     Display->clearLine(4, 7);                         // Остальные строки очищаются
     Board->ledsBlue();                                // Синий - что-то меняется
     Display->newBtn(MDisplay::SAVE, MDisplay::UP, MDisplay::DN); // Активировать группу кнопок
@@ -204,12 +204,12 @@ namespace MOption
       case MDisplay::UP:   nominalV = Tools->updnInt( nominalV, dn, up, +2000);
         Display->drawLabel("OPTIONS", 0);
         Display->drawLabel("NominalV changed:", 1); 
-        Display->drawParFl("NominalV, V :", line, nominalV, 1, line); // Белым - когда значение изменено
+        Display->drawParFl("NominalV, V :", mark, nominalV, 1, mark); // Белым - когда значение изменено
         break;
       case MDisplay::DN:   nominalV = Tools->updnInt( nominalV, dn, up, -2000);
         Display->drawLabel("OPTIONS", 0);
         Display->drawLabel("NominalV changed:", 1); 
-        Display->drawParFl("NominalV, V :", line, nominalV, 1, line); 
+        Display->drawParFl("NominalV, V :", mark, nominalV, 1, mark); 
         break;
       default:;
     }
@@ -225,9 +225,9 @@ namespace MOption
     Display->drawLabel("OPTIONS", 0);                 // режим,
     Display->drawLabel("Adjusting capacity", 1);      // полное название параметра (жёлтым)
     Display->clearLine(2);
-    line = 3;       // В строке 3 имя, размерность и значение параметра из Nvs
-    //Display->drawShort("Capacity, ah :", line, capacity, 0);
-    Display->drawShort("Capacity, ah :", line, capacity);
+    mark = 3;       // В строке 3 имя, размерность и значение параметра из Nvs
+    //Display->drawShort("Capacity, ah :", mark, capacity, 0);
+    Display->drawShort("Capacity, ah :", mark, capacity);
     Display->clearLine(4, 7);                         // Остальные строки очищаются
     Board->ledsBlue();                                // Синий - что-то меняется
     Display->newBtn(MDisplay::SAVE, MDisplay::UP, MDisplay::DN); // Активировать группу кнопок
@@ -243,13 +243,13 @@ namespace MOption
         capacity = Tools->updnInt(capacity, dn, up, +delta);
         Display->drawLabel("OPTIONS", 0);
         Display->drawLabel("Capacity changed:", 1); 
-        Display->drawShort("Capacity, ah :", line, capacity, line);    // Белым - когда значение изменено
+        Display->drawShort("Capacity, ah :", mark, capacity, mark);    // Белым - когда значение изменено
         break;
       case MDisplay::DN:  capacity>14 ? delta=5 : delta=1;
         capacity = Tools->updnInt(capacity, dn, up, -delta);
         Display->drawLabel("OPTIONS", 0);
         Display->drawLabel("Capacity changed:", 1); 
-        Display->drawShort("Capacity, ah :", line, capacity, line); 
+        Display->drawShort("Capacity, ah :", mark, capacity, mark); 
         break;
       default:;
     }
@@ -260,13 +260,13 @@ namespace MOption
   // Состояние "Выбор типа батареи" 
   MAkb::MAkb(MTools * Tools) : MState(Tools)
   {
-    line = 3;
+    mark = 3;
     Display->drawLabel("Mode OPTIONS loaded:", 0);  // Режим, если кто-то забыл, напоминание
     Display->drawLabel("Selection by type :", 1);   // Подбор по типу
     Display->clearLine(2);
-    Display->drawAdj("Pb", 3, line);   //
-    Display->drawAdj("Li", 4, line);   // 
-    Display->drawAdj("Ni", 5, line);   // 
+    Display->drawAdj("Pb", 3, mark);   //
+    Display->drawAdj("Li", 4, mark);   // 
+    Display->drawAdj("Ni", 5, mark);   // 
     Display->clearLine(6, 7);
     Board->ledsGreen();
     Display->newBtn(MDisplay::GO, MDisplay::NEXT, MDisplay::STOP);  // Активировать группу кнопок
@@ -276,13 +276,13 @@ namespace MOption
     switch (Display->getKey())
     {
       case MDisplay::STOP:  return new MStart(Tools);
-      case MDisplay::NEXT:  (line >= 5) ? line = 3 : line++;   // Переместить курсор (выделение цветом)           
-        Display->drawAdj("Pb", 3, line);   //
-        Display->drawAdj("Li", 4, line);   //
-        Display->drawAdj("Ni", 5, line);   //
+      case MDisplay::NEXT:  ( mark >= 5) ? mark = 3 : mark++;   // Переместить курсор (выделение цветом)           
+        Display->drawAdj("Pb", 3, mark);   //
+        Display->drawAdj("Li", 4, mark);   //
+        Display->drawAdj("Ni", 5, mark);   //
         break;
       case MDisplay::GO:
-        switch (line)
+        switch (mark)
         {
           case 3: return new MAkbPb(Tools);
           case 4: return new MAkbLi(Tools);
@@ -298,14 +298,14 @@ namespace MOption
   // Состояние "Выбор технологии свинцовой батареи" 
   MAkbPb::MAkbPb(MTools * Tools) : MState(Tools)
   {
-    line = 2;
+    mark = 2;
     Display->drawLabel("Selection by Pb technology:", 0);
     Display->clearLine(1);
-    Display->drawAdj(TypeAkb[Ca],   2, line);
-    Display->drawAdj(TypeAkb[CaPl], 3, line);
-    Display->drawAdj(TypeAkb[Sur],  4, line);
-    Display->drawAdj(TypeAkb[Agm],  5, line);
-    Display->drawAdj(TypeAkb[Gel],  6, line); 
+    Display->drawAdj(TypeAkb[Ca],   2, mark);
+    Display->drawAdj(TypeAkb[CaPl], 3, mark);
+    Display->drawAdj(TypeAkb[Sur],  4, mark);
+    Display->drawAdj(TypeAkb[Agm],  5, mark);
+    Display->drawAdj(TypeAkb[Gel],  6, mark); 
     Board->ledsBlue();
     Display->newBtn(MDisplay::SAVE, MDisplay::NEXT, MDisplay::STOP);  // Активировать группу кнопок
   }
@@ -316,15 +316,15 @@ namespace MOption
     {
       case MDisplay::STOP:    return new MStart(Tools);
       case MDisplay::NEXT:                    
-        (line >= 6) ? line = 2 : line++;         // Переместить курсор (выделение цветом)
-        Display->drawAdj(TypeAkb[Ca],   2, line);
-        Display->drawAdj(TypeAkb[CaPl], 3, line);
-        Display->drawAdj(TypeAkb[Sur],  4, line);
-        Display->drawAdj(TypeAkb[Agm],  5, line);
-        Display->drawAdj(TypeAkb[Gel],  6, line);
+        ( mark >= 6) ? mark = 2 : mark++;         // Переместить курсор (выделение цветом)
+        Display->drawAdj(TypeAkb[Ca],   2, mark);
+        Display->drawAdj(TypeAkb[CaPl], 3, mark);
+        Display->drawAdj(TypeAkb[Sur],  4, mark);
+        Display->drawAdj(TypeAkb[Agm],  5, mark);
+        Display->drawAdj(TypeAkb[Gel],  6, mark);
         break;
       case MDisplay::SAVE:
-        switch (line)
+        switch (mark)
         {
           case 2: Tools->writeNvsShort("options", "akb", Ca);   return new MStart(Tools);
           case 3: Tools->writeNvsShort("options", "akb", CaPl); return new MStart(Tools);
@@ -342,12 +342,12 @@ namespace MOption
   // Состояние "Выбор технологии литиевой батареи"
   MAkbLi::MAkbLi(MTools * Tools) : MState(Tools)
   {
-    line = 2;
+    mark = 2;
     Display->drawLabel("Mode OPTIONS loaded:", 0);
     Display->clearLine(1);
-    Display->drawAdj(TypeAkb[LiIon], 2, line);
-    Display->drawAdj(TypeAkb[LiFe],  3, line);
-    Display->drawAdj(TypeAkb[LiTit], 4, line);
+    Display->drawAdj(TypeAkb[LiIon], 2, mark);
+    Display->drawAdj(TypeAkb[LiFe],  3, mark);
+    Display->drawAdj(TypeAkb[LiTit], 4, mark);
     Display->clearLine(5, 7);
     Board->ledsBlue();
     Display->newBtn(MDisplay::SAVE, MDisplay::NEXT, MDisplay::STOP); // Активировать группу кнопок
@@ -359,13 +359,13 @@ namespace MOption
     {
       case MDisplay::STOP:    return new MStart(Tools);
       case MDisplay::NEXT:                    
-        (line >= 4) ? line = 2 : line++;         // Переместить курсор (выделение цветом)
-        Display->drawAdj(TypeAkb[LiIon], 2, line);
-        Display->drawAdj(TypeAkb[LiFe],  3, line);
-        Display->drawAdj(TypeAkb[LiTit], 4, line);
+        ( mark >= 4) ? mark = 2 : mark++;         // Переместить курсор (выделение цветом)
+        Display->drawAdj(TypeAkb[LiIon], 2, mark);
+        Display->drawAdj(TypeAkb[LiFe],  3, mark);
+        Display->drawAdj(TypeAkb[LiTit], 4, mark);
         break;
       case MDisplay::SAVE:
-        switch (line)
+        switch (mark)
         {
           case 2: Tools->writeNvsShort("options", "akb", LiIon);  return new MStart(Tools);
           case 3: Tools->writeNvsShort("options", "akb", LiFe );  return new MStart(Tools);
@@ -381,10 +381,10 @@ namespace MOption
   // Состояние "Выбор технологии никелевой батареи"
   MAkbNi::MAkbNi(MTools * Tools) : MState(Tools)
   {
-    line = 1;
+    mark = 1;
     Display->drawLabel( "Mode OPTIONS loaded:", 0 ); // Режим, если кто-то забыл, напоминание
     Display->clearLine(1);
-    Display->drawAdj( "NiCd/Mh",  2, line );   //
+    Display->drawAdj( "NiCd/Mh",  2, mark );   //
     Display->clearLine(3, 7);
     Board->ledsBlue();
     Display->newBtn(MDisplay::SAVE, MDisplay::NEXT, MDisplay::STOP); // Активировать группу кнопок

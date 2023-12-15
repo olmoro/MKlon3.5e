@@ -20,17 +20,19 @@ namespace MBoot
       MState * fsm() override;
   };
 
-  class MTxSetFrequency : public MState
-  {
-    public:   
-      MTxSetFrequency(MTools * Tools);
-      MState * fsm() override;
-    private:
-//      unsigned short freq[6]{ 10u, 20u, 50u, 100u, 200u, 250u };
-      short i;
-//      static constexpr unsigned short fixed = MPrj::pid_frequency_default;   //3;
-  };
-  
+// #ifndef HZ1000
+//   class MTxSetFrequency : public MState
+//   {
+//     public:   
+//       MTxSetFrequency(MTools * Tools);
+//       MState * fsm() override;
+//     private:
+// //      unsigned short freq[6]{ 10u, 20u, 50u, 100u, 200u, 250u };
+//       short i;
+// //      static constexpr unsigned short fixed = MPrj::pid_frequency_default;   //3;
+//   };
+// #endif 
+ 
   class MTxGetTreaty : public MState
   {
     public:   
