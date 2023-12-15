@@ -1,5 +1,5 @@
 /* Константы, общие для проекта MKlon3.5v7
-    09.12.2023
+    19.09.2023
 */
 
 #ifndef _PROJECT_CONFIG_H_
@@ -25,25 +25,32 @@ namespace MPrj
 
   
   // Согласованные параметры ПИД-регуляторов SAMD21 (частный случай):
-#ifdef HZ1000
-  static constexpr unsigned short par_mult         = 0x8000u;    // pMult
-  static constexpr unsigned short par_max          = 0x0001u;    // pMax
-  static constexpr          float par_float_max    = 1.0f;
-#else
-  static constexpr unsigned short par_mult         = 0x0100;     // pMult
-  static constexpr unsigned short par_max          = 0x00FF;     // pMax
-  static constexpr float par_float_max             = (float)par_max / (float)par_mult;
+//#ifdef HZ1000
+  static constexpr unsigned short par_mult         = 0x8000;     // pMult
+  static constexpr unsigned short par_max          = 0x0001;     // pMax
+  static constexpr float par_float_max             = 1.0f;
+// #else
+//   static constexpr unsigned short par_mult         = 0x0100;     // pMult
+//   static constexpr unsigned short par_max          = 0x00FF;     // pMax
+//   static constexpr float par_float_max             = (float)par_max / (float)par_mult;
+// #endif
   static constexpr short f_hz[6]{ 10, 20, 50, 100, 200, 250 };
   static constexpr short pid_frequency_default  = 3u; // 100Hz ([10, 20, 50, 100, 200, 250])
-#endif
   
-  static constexpr float kp_c_default = 0.25f;
-  static constexpr float ki_c_default = 0.45f;
-  static constexpr float kd_c_default = 0.00f;
-   
-  static constexpr float kp_d_default = 0.55f;
-  static constexpr float ki_d_default = 0.50f;
-  static constexpr float kd_d_default = 0.00f;
+  static constexpr float kp_v_default = 0.48f;  //1.00f;   //0.56f;
+  static constexpr float ki_v_default = 0.48f;  //1.80f;   //1.79f;
+  static constexpr float kd_v_default = 0.00f;  //0.01f;  //0.09f;
+  
+  static constexpr float kp_i_default = 0.48f;  //1.00f;   //0.56f;
+  static constexpr float ki_i_default = 0.48f;  //3.60f;   //1.79f;
+  static constexpr float kd_i_default = 0.00f;  //0.00f;   //0.09f;
+  
+  static constexpr float kp_d_default = 0.70f;   //
+  static constexpr float ki_d_default = 0.20f;   //
+  static constexpr float kd_d_default = 0.02f;   //
+
+
+
 
   // Дефолтные для ввода пользовательских параметров
   static constexpr short postpone_fixed  =  0u;

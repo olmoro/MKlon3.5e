@@ -30,7 +30,7 @@ namespace MCmd
 
 //  constexpr uint8_t cmd_power_on            = 0x28; // резерв
   constexpr uint8_t cmd_power_off                 = 0x29; // Перевод в режим ХХ
-  constexpr uint8_t cmd_idle                      = 0x2A; // Отключить в холостой ход  (то же)
+  constexpr uint8_t cmd_aligning                  = 0x2A; // Выравнивание напряжений  (то же)
 
 
   // Команды работы с измерителем напряжения
@@ -69,25 +69,24 @@ namespace MCmd
   constexpr uint8_t cmd_pid_read_configure        = 0x48; // mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
   //constexpr uint8_t cmd_pid_write_max_sum         = 0x49; // Задает максимальный интеграл при вычислении шага рег
   //constexpr uint8_t cmd_pid_write_treaty          = 0x4A; // set shift, bits, hz  (резерв)
-  #ifndef HZ1000
-    constexpr uint8_t cmd_pid_write_frequency       = 0x4A; //Запись частоты pid-регулятора
-  #endif
+  constexpr uint8_t cmd_pid_write_frequency       = 0x4A; //Запись частоты pid-регулятора
+  
     // АЦП - настройки
   constexpr uint8_t cmd_adc_read_probes           = 0x50; // Read all probes
-//   constexpr uint8_t cmd_adc_read_offset           = 0x51; // Читать смещение АЦП
-//   constexpr uint8_t cmd_adc_write_offset          = 0x52; // Запись смещения АЦП
-//   constexpr uint8_t cmd_adc_auto_offset           = 0x53; // Автоматическая компенсация смещения АЦП (пока нет)
+  constexpr uint8_t cmd_adc_read_offset           = 0x51; // Читать смещение АЦП
+  constexpr uint8_t cmd_adc_write_offset          = 0x52; // Запись смещения АЦП
+  constexpr uint8_t cmd_adc_auto_offset           = 0x53; // Автоматическая компенсация смещения АЦП (пока нет)
 
-//     // Команды тестовые
-//   constexpr uint8_t cmd_write_switch_pin          = 0x54; // sw_pin D13 (PA17) Управление силовыми ключами SAMD21 MINI 
+    // Команды тестовые
+  constexpr uint8_t cmd_write_switch_pin          = 0x54; // sw_pin D13 (PA17) Управление силовыми ключами SAMD21 MINI 
 
-//   constexpr uint8_t cmd_write_power               = 0x56; // пользоваться с осторожностью - выяснение пределов регулирования
-//   constexpr uint8_t cmd_write_discharge           = 0x57; // не проверена
-// //  constexpr uint8_t cmd_write_voltage             = 0x58; // старая, не проверена
-// //  constexpr uint8_t cmd_write_current             = 0x59; // старая, не проверена 
-//   constexpr uint8_t cmd_write_discurrent          = 0x5A; // старая, не проверена
-//   constexpr uint8_t cmd_write_surge_compensation  = 0x5B; // параметры подавления всплеска напряжения na
-//   constexpr uint8_t cmd_write_idle_load           = 0x5C; // параметры доп.нагрузки ХХ
+  constexpr uint8_t cmd_write_power               = 0x56; // пользоваться с осторожностью - выяснение пределов регулирования
+  constexpr uint8_t cmd_write_discharge           = 0x57; // не проверена
+//  constexpr uint8_t cmd_write_voltage             = 0x58; // старая, не проверена
+//  constexpr uint8_t cmd_write_current             = 0x59; // старая, не проверена 
+  constexpr uint8_t cmd_write_discurrent          = 0x5A; // старая, не проверена
+  constexpr uint8_t cmd_write_surge_compensation  = 0x5B; // параметры подавления всплеска напряжения na
+  constexpr uint8_t cmd_write_idle_load           = 0x5C; // параметры доп.нагрузки ХХ
 
     // Команды задания порогов отключения
   constexpr uint8_t cmd_get_lt_v                  = 0x60; // 

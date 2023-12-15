@@ -1,4 +1,4 @@
-/* 20231208 MKlon3.5E */
+/* 20231108 MKlon2v7a */
 
 #ifndef _DEVICEFSM_H_
 #define _DEVICEFSM_H_
@@ -28,10 +28,18 @@ namespace MDevice
       MState * fsm() override;
   };
 
-  class MAdjPidC : public MState
+  class MAdjPidI : public MState
   {       
     public:
-      MAdjPidC(MTools * Tools);
+      MAdjPidI(MTools * Tools);
+      MState * fsm() override;
+    private:
+  };
+
+  class MAdjPidV : public MState
+  {       
+    public:
+      MAdjPidV(MTools * Tools);
       MState * fsm() override;
   };
 
@@ -43,6 +51,30 @@ namespace MDevice
     private:
       static constexpr short sp_d_default = 1000u;  // 1A
   };
+
+  class MPidFrequency : public MState
+  {
+    public:
+      MPidFrequency(MTools * Tools);
+      MState * fsm() override;
+    private:
+//      short freq[6]{ 10, 20, 50, 100, 200, 250 };
+      short i;
+//      static constexpr unsigned short fixed = MPrj::pid_frequency_default;
+      static constexpr unsigned short up = 5;
+      static constexpr unsigned short dn = 0;     
+  };
+
+
+
+
+
+
+
+
+
+
+
 
   class MAdjVoltage : public MState
   {       
@@ -132,6 +164,10 @@ namespace MDevice
       static constexpr short dn = 0; 
   };
 
+
+
+
+
 //===== MLoadSpV, ввод порога PID-регулятора заряда по напряжению ===== 
   class MLoadSpV : public MState
   {
@@ -145,33 +181,33 @@ namespace MDevice
       static constexpr short delta =  200u;
   };
 
-  //======== MLoadKp, ввод параметра KP PID-регулятора ========= 
-  class MLoadKp : public MState
+  //======== MLoadKpV, ввод параметра KP PID-регулятора напряжения ========= 
+  class MLoadKpV : public MState
   {
     public:  
-      MLoadKp(MTools * Tools);
+      MLoadKpV(MTools * Tools);
       MState * fsm() override;
     private:
       static constexpr float up = MPrj::par_float_max;    //1.00f;
       static constexpr float dn = 0.01f; 
   };
 
-  //======== MLoadKi, ввод параметра KI PID-регулятора ========= 
-  class MLoadKi : public MState
+  //======== MLoadKiV, ввод параметра KI PID-регулятора напряжения ========= 
+  class MLoadKiV : public MState
   {
     public:  
-      MLoadKi(MTools * Tools);
+      MLoadKiV(MTools * Tools);
       MState * fsm() override;
     private:
       static constexpr float up = MPrj::par_float_max;    //4.00f;
       static constexpr float dn = 0.00f;
   };
 
-  //======== MLoadKd, ввод параметра KD PID-регулятора ========= 
-  class MLoadKd : public MState
+  //======== MLoadKdV, ввод параметра KD PID-регулятора напряжения ========= 
+  class MLoadKdV : public MState
   {
     public:  
-      MLoadKd(MTools * Tools);
+      MLoadKdV(MTools * Tools);
       MState * fsm() override;
     private:
       static constexpr float up = MPrj::par_float_max;    //1.00f;
@@ -180,7 +216,7 @@ namespace MDevice
 
 
 
-//===== MLoadSpI, ввод порога PID-регулятора заряда по току ===== 
+//===== MLoadSpV, ввод порога PID-регулятора заряда по напряжению ===== 
   class MLoadSpI : public MState
   {
     public:  
@@ -193,11 +229,48 @@ namespace MDevice
       static constexpr short delta =  200u;
   };
 
-//========== MLoadSpD, ввод порога PID-регулятора разряда ================= 
-  class MLoadSpD : public MState
+
+
+
+  //======== MLoadKpI, ввод параметра KP PID-регулятора тока ============= 
+  class MLoadKpI : public MState
   {
     public:  
-      MLoadSpD(MTools * Tools);
+      MLoadKpI(MTools * Tools);
+      MState * fsm() override;
+    private:
+      static constexpr float up = MPrj::par_float_max;    //2.00f;
+      static constexpr float dn = 0.01f; 
+  };
+
+  //======== MLoadKiI, ввод параметра KI PID-регулятора тока ============= 
+  class MLoadKiI : public MState
+  {
+    public:  
+      MLoadKiI(MTools * Tools);
+      MState * fsm() override;
+    private:
+      static constexpr float up = MPrj::par_float_max;    //4.00f;
+      static constexpr float dn = 0.00f;
+  };
+
+  //======== MLoadKdI, ввод параметра KD PID-регулятора тока ============= 
+  class MLoadKdI : public MState
+  {
+    public:  
+      MLoadKdI(MTools * Tools);
+      MState * fsm() override;
+    private:
+      static constexpr float up = MPrj::par_float_max;    //1.00f;
+      static constexpr float dn = 0.00f;
+  };
+
+
+//========== MLoadSp, ввод порога PID-регулятора разряда ================= 
+  class MLoadSp : public MState
+  {
+    public:  
+      MLoadSp(MTools * Tools);
       MState * fsm() override;
     private:
       // min/max для задания тока

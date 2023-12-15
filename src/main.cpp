@@ -10,7 +10,7 @@
   Arduino       v0.6.230727001 Arduino for Visual Studio Code
   Espressif 32: 3.5.0 (с 4.0 не совместимо)
                 6.3.1 не совместимо
-  date:         20231207
+  date:         20231111
 */    
 
 #include "board/mboard.h"

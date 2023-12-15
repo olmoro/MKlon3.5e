@@ -20,7 +20,6 @@ namespace MBoot
       MState * fsm() override;
   };
 
-#ifndef HZ1000
   class MTxSetFrequency : public MState
   {
     public:   
@@ -31,8 +30,7 @@ namespace MBoot
       short i;
 //      static constexpr unsigned short fixed = MPrj::pid_frequency_default;   //3;
   };
-#endif 
- 
+  
   class MTxGetTreaty : public MState
   {
     public:   

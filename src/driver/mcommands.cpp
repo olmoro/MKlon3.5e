@@ -66,7 +66,7 @@ void MCommands::doCommand()
 
 //      case MCmd::cmd_power_on:            doPowerOn();          break;  // 0x28
       case MCmd::cmd_power_off:               doPowerOff();               break;  // 0x29
-      case MCmd::cmd_idle:                    doIdle();               break;  // 0x2A
+      case MCmd::cmd_aligning:                doAligning();               break;  // 0x2A
 
         // Команды работы с измерителем напряжения 
       case MCmd::cmd_read_factor_u:           doGetFactorU();             break;  // 0x30
@@ -88,7 +88,7 @@ void MCommands::doCommand()
 
         // Команды работы с ПИД-регулятором
       case MCmd::cmd_pid_configure:             doPidConfigure();         break;  // 0x40
-      case MCmd::cmd_pid_write_coefficients:    doPidSetCoefficients();   break;  // 0x41*
+      case MCmd::cmd_pid_write_coefficients:    doPidSetCoefficients();   break;  // 0x41
       case MCmd::cmd_pid_output_range:          doPidOutputRange();       break;  // 0x42
       case MCmd::cmd_pid_reconfigure:           doPidReconfigure();       break;  // 0x43
       case MCmd::cmd_pid_clear:                 doPidClear();             break;  // 0x44
@@ -97,25 +97,24 @@ void MCommands::doCommand()
       case MCmd::cmd_pid_read_configure:        doPidGetConfigure();      break;  // 0x48
       // case MCmd::cmd_pid_write_max_sum:        doPidSetMaxSum();         break;  // 0x49  ?
       //case MCmd::cmd_pid_write_treaty:          doPidSetTreaty();         break;  // 0x4A (резерв)
-    #ifndef HZ1000
       case MCmd::cmd_pid_write_frequency:       doPidSetFrequency();      break;  // 0x4A Задание частоты pid-регулятора
-    #endif
+
         // Команды работы с АЦП
       case MCmd::cmd_adc_read_probes:           doReadProbes();           break;  // 0x50
-//       case MCmd::cmd_adc_read_offset:           doAdcGetOffset();         break;  // 0x51
-//       case MCmd::cmd_adc_write_offset:          doAdcSetOffset();         break;  // 0x52
-//       case MCmd::cmd_adc_auto_offset:           doAdcAutoOffset();        break;  // 0x53 na
+      case MCmd::cmd_adc_read_offset:           doAdcGetOffset();         break;  // 0x51
+      case MCmd::cmd_adc_write_offset:          doAdcSetOffset();         break;  // 0x52
+      case MCmd::cmd_adc_auto_offset:           doAdcAutoOffset();        break;  // 0x53 na
 
 
-//         // Команды управления тестовые
-//       case MCmd::cmd_write_switch_pin:          doSwPin();                break;  // 0x54 na
-//       case MCmd::cmd_write_power:               doSetPower();             break;  // 0x56 na
-//       case MCmd::cmd_write_discharge:           doSetDischg();            break;  // 0x57 na
-// //       case MCmd::cmd_write_voltage:             doSetVoltage();           break;  // 0x58 na
-// //       case MCmd::cmd_write_current:             doSetCurrent();           break;  // 0x59 na
-//       case MCmd::cmd_write_discurrent:          doSetDiscurrent();        break;  // 0x5A na
-//   //   case MCmd::cmd_write_surge_compensation:  doSurgeCompensation();     break;  // 0x5B   nu
-//       case MCmd::cmd_write_idle_load:           doIdleLoad();             break;  // 0x5C na   
+        // Команды управления тестовые
+      case MCmd::cmd_write_switch_pin:          doSwPin();                break;  // 0x54 na
+      case MCmd::cmd_write_power:               doSetPower();             break;  // 0x56 na
+      case MCmd::cmd_write_discharge:           doSetDischg();            break;  // 0x57 na
+//       case MCmd::cmd_write_voltage:             doSetVoltage();           break;  // 0x58 na
+//       case MCmd::cmd_write_current:             doSetCurrent();           break;  // 0x59 na
+      case MCmd::cmd_write_discurrent:          doSetDiscurrent();        break;  // 0x5A na
+  //   case MCmd::cmd_write_surge_compensation:  doSurgeCompensation();     break;  // 0x5B   nu
+      case MCmd::cmd_write_idle_load:           doIdleLoad();             break;  // 0x5C na   
 
         // Команды задания порогов отключения
       case MCmd::cmd_get_lt_v:                  doGetLtV();               break;  // 0x60
@@ -451,8 +450,8 @@ short MCommands::dataProcessing()
 
       // case cmd_pid_write_max_sum:         doPidSetMaxSum();           break;  // 0x49   + 0?->0?
 
-  #ifndef HZ1000
-    //constexpr uint8_t cmd_pid_write_frequency       = 0x4A; //Запись частоты pid-регулятора
+
+  //constexpr uint8_t cmd_pid_write_frequency       = 0x4A; //Запись частоты pid-регулятора
     case MCmd::cmd_pid_write_frequency:
       if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
       {
@@ -460,40 +459,40 @@ short MCommands::dataProcessing()
       }
       else  return 1;  // ошибка протокола или нет подтверждения исполнения команды 
     break;
-  #endif
 
-    //   // ================ Команды работы с АЦП =================
-    //   // Чтение АЦП                                        0x50   + 00->07
-    // case MCmd::cmd_adc_read_probes:
-    //   if( (Wake->get08(0) == 0) && (Wake->getNbt() == 7) )
-    //   {
-    //     Tools->setAdcV(Wake->get16(1));
-    //     Tools->setAdcI(Wake->get16(3));
-    //     // состояние
-    //     // состояние
-    //     return 0;  //Tools->setProtErr(0);
-    //   }
-    //   else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
-    // break;
 
-    //   // Чтение смещения АЦП                               0x51   + 00->03
-    // case MCmd::cmd_adc_read_offset:
-    //   if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
-    //   {
-    //     Tools->txSetAdcOffset(Wake->get16(1));
-    //     return 0;  //Tools->setProtErr(0);
-    //   }
-    //   else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
-    // break;
+      // ================ Команды работы с АЦП =================
+      // Чтение АЦП                                        0x50   + 00->07
+    case MCmd::cmd_adc_read_probes:
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 7) )
+      {
+        Tools->setAdcV(Wake->get16(1));
+        Tools->setAdcI(Wake->get16(3));
+        // состояние
+        // состояние
+        return 0;  //Tools->setProtErr(0);
+      }
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+    break;
 
-    //   // Запись смещения АЦП                                0x52   + 02->01
-    // case MCmd::cmd_adc_write_offset:
-    //   if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
-    //   {
-    //     return 0;  //Tools->setProtErr(0);
-    //   }
-    //   else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
-    // break;
+      // Чтение смещения АЦП                               0x51   + 00->03
+    case MCmd::cmd_adc_read_offset:
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 3) )
+      {
+        Tools->txSetAdcOffset(Wake->get16(1));
+        return 0;  //Tools->setProtErr(0);
+      }
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+    break;
+
+      // Запись смещения АЦП                                0x52   + 02->01
+    case MCmd::cmd_adc_write_offset:
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
+      {
+        return 0;  //Tools->setProtErr(0);
+      }
+      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+    break;
 
 
 
@@ -738,10 +737,10 @@ void MCommands::doPowerOff()
 
 
   //  0x2A*
-void MCommands::doIdle()
+void MCommands::doAligning()
 {
   int id = 0;
-  Wake->configAsk(id, MCmd::cmd_idle);  
+  Wake->configAsk(id, MCmd::cmd_aligning);  
 }
 
 
@@ -960,16 +959,13 @@ void MCommands::doPidGetConfigure()
 //   Wake->configAsk( id, MCmd::cmd_pid_write_treaty);
 // }
 
-#ifndef HZ1000
-  // Ввод частоты PID-регулятора                                    0x4A
-  void MCommands::doPidSetFrequency() 
-  {
-    int id = 0;
-    id = Wake->replyU16( id, Tools->pidHz );
-    Wake->configAsk( id, MCmd::cmd_pid_write_frequency);
-  }
-#endif
-
+// Ввод частоты PID-регулятора                                    0x4A
+void MCommands::doPidSetFrequency() 
+{
+  int id = 0;
+  id = Wake->replyU16( id, Tools->pidHz );
+  Wake->configAsk( id, MCmd::cmd_pid_write_frequency);
+}
 
 //================= Команды работы с АЦП =================
 
@@ -980,99 +976,99 @@ void MCommands::doReadProbes()
   // ...
 }
 
-// // Команда чтения смещения АЦП  0x51
-// void MCommands::doAdcGetOffset()
-// {
-//   Wake->configAsk( 0, MCmd::cmd_adc_read_offset);
-//   // ...
-// }
+// Команда чтения смещения АЦП  0x51
+void MCommands::doAdcGetOffset()
+{
+  Wake->configAsk( 0, MCmd::cmd_adc_read_offset);
+  // ...
+}
 
-// // Команда записи смещения АЦП  0x52
-// void MCommands::doAdcSetOffset()
-// {
-//   int id = 0;
-//   //  id = Wake->replyU16( id, Board->readAdcOffset() );
-//   id = Wake->replyU16( id, Tools->getAdcOffset());
-//   Wake->configAsk( id, MCmd::cmd_adc_write_offset);
-// }  
+// Команда записи смещения АЦП  0x52
+void MCommands::doAdcSetOffset()
+{
+  int id = 0;
+  //  id = Wake->replyU16( id, Board->readAdcOffset() );
+  id = Wake->replyU16( id, Tools->getAdcOffset());
+  Wake->configAsk( id, MCmd::cmd_adc_write_offset);
+}  
 
-// // Команда автоматической компенсации смещения АЦП 0x53
-// void MCommands::doAdcAutoOffset()
-// {
-//   Wake->configAsk( 0, MCmd::cmd_adc_auto_offset);
-// }  
+// Команда автоматической компенсации смещения АЦП 0x53
+void MCommands::doAdcAutoOffset()
+{
+  Wake->configAsk( 0, MCmd::cmd_adc_auto_offset);
+}  
 
-// // ================= Команды тестирования =================
-// // Команда управления ключами подключения нагрузки     0x54
-// void MCommands::doSwPin()
-// {
-//   int id = 0;
-//   id = Wake->replyU08( id, Tools->swOnOff );  // 0x00;
-//   Wake->configAsk( id, MCmd::cmd_write_switch_pin);
-// }
+// ================= Команды тестирования =================
+// Команда управления ключами подключения нагрузки     0x54
+void MCommands::doSwPin()
+{
+  int id = 0;
+  id = Wake->replyU08( id, Tools->swOnOff );  // 0x00;
+  Wake->configAsk( id, MCmd::cmd_write_switch_pin);
+}
 
-// // Команда проверки пределов регулирования преобразователя снизу. 0x56
-// void MCommands::doSetPower()
-// {
-//   int id = 0;
-//   id = Wake->replyU16( id, Board->getPwmVal() );
-//   id = Wake->replyU16( id, Board->getDacVal() );
-//   Wake->configAsk( id, MCmd::cmd_write_power);
-// }
+// Команда проверки пределов регулирования преобразователя снизу. 0x56
+void MCommands::doSetPower()
+{
+  int id = 0;
+  id = Wake->replyU16( id, Board->getPwmVal() );
+  id = Wake->replyU16( id, Board->getDacVal() );
+  Wake->configAsk( id, MCmd::cmd_write_power);
+}
 
-// // Команда проверка управления цепью разряда.      0x57
-// void MCommands::doSetDischg()
-// {
-//   int id = 0;
-//   id = Wake->replyU08( id, Board->getPerc() );
-//   Wake->configAsk( id, MCmd::cmd_write_discharge);
-// }
+// Команда проверка управления цепью разряда.      0x57
+void MCommands::doSetDischg()
+{
+  int id = 0;
+  id = Wake->replyU08( id, Board->getPerc() );
+  Wake->configAsk( id, MCmd::cmd_write_discharge);
+}
 
-// // // Команда включения и поддержание заданного напряжения в мВ   0x58
-// // void MCommands::doSetVoltage()
-// // {
-// //   int id = 0;
-// //   id = Wake->replyU08( id, Tools->pidMode );  // 0x01;
-// //   id = Wake->replyU16( id, Tools->setpointU );
-// //   Wake->configAsk( id, MCmd::cmd_write_voltage);
-// // }
-
-// // // Команда задать ток в мА и включить 0x59
-// // void MCommands::doSetCurrent()
-// // {
-// //   int id = 0;
-// //   id = Wake->replyU08( id, Tools->swOnOff );
-// //   id = Wake->replyU16( id, Tools->setpointI );
-// //   id = Wake->replyU16( id, Tools->factorI );
-// //   Wake->configAsk( id, MCmd::cmd_write_current);
-// // }
-
-// // Команда задать код DAC или ток разряда в мА и включить    0x5A
-// void MCommands::doSetDiscurrent()
+// // Команда включения и поддержание заданного напряжения в мВ   0x58
+// void MCommands::doSetVoltage()
 // {
 //   int id = 0;
-//   id = Wake->replyU08(id, Tools->pidMode);
-//   id = Wake->replyU16(id, Tools->setpointD);
-//   Wake->configAsk(id, MCmd::cmd_write_discurrent);
+//   id = Wake->replyU08( id, Tools->pidMode );  // 0x01;
+//   id = Wake->replyU16( id, Tools->setpointU );
+//   Wake->configAsk( id, MCmd::cmd_write_voltage);
 // }
 
-// // Команда задать параметры компенсации перенапряжения - отменено     0x5B
-// void MCommands::doSurgeCompensation()
+// // Команда задать ток в мА и включить 0x59
+// void MCommands::doSetCurrent()
 // {
 //   int id = 0;
-// //   id = Wake->replyU08( id, Board->get() );  // 0x00;
-// //   id = Wake->replyU16( id, Board->get() );
-//   Wake->configAsk( id, MCmd::cmd_write_surge_compensation);
+//   id = Wake->replyU08( id, Tools->swOnOff );
+//   id = Wake->replyU16( id, Tools->setpointI );
+//   id = Wake->replyU16( id, Tools->factorI );
+//   Wake->configAsk( id, MCmd::cmd_write_current);
 // }
 
-// // Команда задать параметры доп. нагрузки на ХХ       0x5C
-// void MCommands::doIdleLoad()
-// {
-//   int id = 0;
-//   id = Wake->replyU16( id, Board->getIdleI() );
-//   id = Wake->replyU16( id, Board->getIdleDac() );
-//   Wake->configAsk( id, MCmd::cmd_write_idle_load);
-// }
+// Команда задать код DAC или ток разряда в мА и включить    0x5A
+void MCommands::doSetDiscurrent()
+{
+  int id = 0;
+  id = Wake->replyU08(id, Tools->pidMode);
+  id = Wake->replyU16(id, Tools->setpointD);
+  Wake->configAsk(id, MCmd::cmd_write_discurrent);
+}
+
+// Команда задать параметры компенсации перенапряжения - отменено     0x5B
+void MCommands::doSurgeCompensation()
+{
+  int id = 0;
+//   id = Wake->replyU08( id, Board->get() );  // 0x00;
+//   id = Wake->replyU16( id, Board->get() );
+  Wake->configAsk( id, MCmd::cmd_write_surge_compensation);
+}
+
+// Команда задать параметры доп. нагрузки на ХХ       0x5C
+void MCommands::doIdleLoad()
+{
+  int id = 0;
+  id = Wake->replyU16( id, Board->getIdleI() );
+  id = Wake->replyU16( id, Board->getIdleDac() );
+  Wake->configAsk( id, MCmd::cmd_write_idle_load);
+}
 
 // ================ Команды управления порогами отключения ================
 

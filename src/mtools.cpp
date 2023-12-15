@@ -2,7 +2,7 @@
     Набор методов, доступных разработчику для программирования собственных
  режимов работы прибора.
 
-    20231207          
+    20230908          
 */
 
 #include "mtools.h"
@@ -10,7 +10,7 @@
 #include "mcmd.h"
 #include "driver/mcommands.h"
 #include "board/mboard.h"
-#include "mdispatcher.h"
+ #include "mdispatcher.h"
 #include "display/mdisplay.h"
 #include "driver/mcommands.h"
 #include <Preferences.h>
@@ -372,9 +372,9 @@ void MTools::txPowerOff()
 }
 
   // 0x2A*  Пока это эквивалент 0x29
-void MTools::txIdle() 
+void MTools::txAligning() 
 {
-  buffCmd = MCmd::cmd_idle;
+  buffCmd = MCmd::cmd_aligning;
   vTaskDelay(80 / portTICK_PERIOD_MS);
 }
 
@@ -445,37 +445,8 @@ void MTools::txSetPidCoeff(unsigned short m, float _kp, float _ki, float _kd)   
     buffCmd = MCmd::cmd_pid_write_coefficients;                                                      // 0x41 Запись
 }
 
-//   // 0x41 Запись
-// void MTools::txSetPidCoeffV(float _kp, float _ki, float _kd)
-// {
-//   pidMode = MPrj::RU; //      1;
-//   kp      = (unsigned short) (_kp * MPrj::par_mult);
-//   ki      = (unsigned short) (_ki * MPrj::par_mult);
-//   kd      = (unsigned short) (_kd * MPrj::par_mult);
-//   buffCmd = MCmd::cmd_pid_write_coefficients;
-//   vTaskDelay(80 / portTICK_PERIOD_MS);
-// }
-
-//   // 0x41 Запись
-// void MTools::txSetPidCoeffI(float _kp, float _ki, float _kd)
-// {
-//   pidMode = MPrj::RI;   //2;
-//   kp      = (unsigned short) (_kp * MPrj::par_mult);
-    
-// //  Serial.print("\n_kp="); Serial.print(_kp, 2);
-// //  Serial.print("\npMult=0x"); Serial.print(pMult, HEX);
-// //  Serial.print("\nkp=0x"); Serial.print(kp, HEX);
-
-//   ki      = (unsigned short) (_ki * MPrj::par_mult);
-//   kd      = (unsigned short) (_kd * MPrj::par_mult);
-//   buffCmd = MCmd::cmd_pid_write_coefficients; 
-//   vTaskDelay(80 / portTICK_PERIOD_MS);
-// }
-
-
-
   // 0x41 Запись
-void MTools::txSetPidCoeffC(float _kp, float _ki, float _kd)
+void MTools::txSetPidCoeffV(float _kp, float _ki, float _kd)
 {
   pidMode = MPrj::RU; //      1;
   kp      = (unsigned short) (_kp * MPrj::par_mult);
@@ -485,15 +456,29 @@ void MTools::txSetPidCoeffC(float _kp, float _ki, float _kd)
   vTaskDelay(80 / portTICK_PERIOD_MS);
 }
 
+  // 0x41 Запись
+void MTools::txSetPidCoeffI(float _kp, float _ki, float _kd)
+{
+  pidMode = MPrj::RI;   //2;
+  kp      = (unsigned short) (_kp * MPrj::par_mult);
+    
+//  Serial.print("\n_kp="); Serial.print(_kp, 2);
+//  Serial.print("\npMult=0x"); Serial.print(pMult, HEX);
+//  Serial.print("\nkp=0x"); Serial.print(kp, HEX);
 
-  // 0x41*
+  ki      = (unsigned short) (_ki * MPrj::par_mult);
+  kd      = (unsigned short) (_kd * MPrj::par_mult);
+  buffCmd = MCmd::cmd_pid_write_coefficients; 
+  vTaskDelay(80 / portTICK_PERIOD_MS);
+}
+
 void MTools::txSetPidCoeffD(float _kp, float _ki, float _kd)
 {
   pidMode = MPrj::RD;   //3;
   kp      = (unsigned short) (_kp * MPrj::par_mult);
   ki      = (unsigned short) (_ki * MPrj::par_mult);
   kd      = (unsigned short) (_kd * MPrj::par_mult);
-  buffCmd = MCmd::cmd_pid_write_coefficients;
+  buffCmd = MCmd::cmd_pid_write_coefficients;   // 0x41 Запись
   vTaskDelay(80 / portTICK_PERIOD_MS);
 
   // Serial.print("pMult=0x"); Serial.println(pMult, HEX);
@@ -545,15 +530,13 @@ void MTools::txGetPidConfig()                         {buffCmd = MCmd::cmd_pid_r
 //     buffCmd = MCmd::cmd_pid_write_treaty;                                                             // 0x4A Запись
 // }
 
-#ifndef HZ1000
 // Ввод частоты PID-регулятора                                    0x4A
-  void MTools::txSetPidFrequency(unsigned short hz)
-  {
-    pidHz   = hz;
-    buffCmd = MCmd::cmd_pid_write_frequency;                // 0x4A Запись
-    vTaskDelay(80 / portTICK_PERIOD_MS);
-  }
-#endif
+void MTools::txSetPidFrequency(unsigned short hz)
+{
+  pidHz   = hz;
+  buffCmd = MCmd::cmd_pid_write_frequency;                // 0x4A Запись
+  vTaskDelay(80 / portTICK_PERIOD_MS);
+}
 
 // void MTools::txSetCurrent(unsigned short val)     // 0x59
 // {
@@ -574,20 +557,20 @@ void MTools::txGetPidConfig()                         {buffCmd = MCmd::cmd_pid_r
 //   buffCmd = MCmd::cmd_write_discurrent;
 // }  // doSetDiscurrent();
 
-//   // 0x5A Установка тока разряда                20231022
-// void MTools::txSetDiscurrent(unsigned short val)
-// {
-//   pidMode   = MPrj::RD;
-//   setpointD = val;
-//   buffCmd = MCmd::cmd_write_discurrent;   // 0x5A
-// }  // doSetDiscurrent();
+  // 0x5A Установка тока разряда                20231022
+void MTools::txSetDiscurrent(unsigned short val)
+{
+  pidMode   = MPrj::RD;
+  setpointD = val;
+  buffCmd = MCmd::cmd_write_discurrent;   // 0x5A
+}  // doSetDiscurrent();
 
 
-//   // Команды работы с АЦП
-// void MTools::txGetProbes()                              {buffCmd = MCmd::cmd_adc_read_probes;}        // 0x50
-// void MTools::txGetAdcOffset()                           {buffCmd = MCmd::cmd_adc_read_offset;}        // 0x51  
-// void MTools::txSetAdcOffset(short val) {offsetAdc = val; buffCmd = MCmd::cmd_adc_write_offset;}       // 0x52
-// void MTools::txAdcAutoOffset()                          {buffCmd = MCmd::cmd_adc_auto_offset;}        // 0x53 nu 
+  // Команды работы с АЦП
+void MTools::txGetProbes()                              {buffCmd = MCmd::cmd_adc_read_probes;}        // 0x50
+void MTools::txGetAdcOffset()                           {buffCmd = MCmd::cmd_adc_read_offset;}        // 0x51  
+void MTools::txSetAdcOffset(short val) {offsetAdc = val; buffCmd = MCmd::cmd_adc_write_offset;}       // 0x52
+void MTools::txAdcAutoOffset()                          {buffCmd = MCmd::cmd_adc_auto_offset;}        // 0x53 nu 
 
   // Команды управления тестовые
 
@@ -666,35 +649,4 @@ void MTools::showVolt(float volt, uint8_t pls, short filtr)
 {
   beautyV = filtr;
   Display->showVolt(volt, pls);
-}
-
-
-void MTools::ledStopGo()
-{
-  ((getState() == getStatusPidVoltage()) |
-   (getState() == getStatusPidCurrent()) |
-   (getState() == getStatusPidDiscurrent())) ?  /*Green : Red*/
-                          Board->ledsGreen() : Board->ledsRed();
-}
-
-void MTools::autoStopGo(short spV, short spI)
-{
-  ((getState() == getStatusPidVoltage()) |
-   (getState() == getStatusPidCurrent())) ?  /* 0x21 : 0x20 */
-                            txPowerStop() : txPowerAuto(spV, spI);
-}
-
-void MTools::autoIdleGo(short spV, short spI)
-{
-  ((getState() == getStatusPidVoltage()) |
-   (getState() == getStatusPidCurrent())) ?  /* 0x2A : 0x20 */
-                                 txIdle() : txPowerAuto(spV, spI);
-}
-
-
-
-void MTools::dischargeStopGo(short spD)
-{
-  (getState() == getStatusPidDiscurrent()) ?
-                             txPowerStop() : txDischargeGo(spD);
 }
