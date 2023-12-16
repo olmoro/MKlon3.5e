@@ -2,7 +2,7 @@
     Набор методов, доступных разработчику для программирования собственных
  режимов работы прибора.
 
-    20231207          
+    20231216          
 */
 
 #include "mtools.h"
@@ -44,7 +44,6 @@ void MTools::setTuningAdc(bool tu)              {tuningAdc = tu;}
 
 void  MTools::setPostpone(unsigned short hour)  {postpone = hour;}
 unsigned short MTools::getPostpone()            {return postpone;}
-
 
   // Напряжение и ток без преобразования
 short beautyV = 2; 
@@ -168,6 +167,21 @@ void  MTools::chargeCalculations()
   chargeTimeCounter = ((int)timeCounter / 10);
   ahCharge += current / 36000.0;
 }
+
+void MTools::calkKpKiKd(float p, float i, float d)
+{
+#ifdef KIKD
+  // ki вычисляется с округлением
+  kp = (unsigned short)(p * MPrj::par_mult);
+  ki = (unsigned short)(((i * MPrj::par_mult) + (MPrj::pid_hz >> 1)) / MPrj::pid_hz);
+  kd = (unsigned short)((d * MPrj::par_mult) * MPrj::pid_hz);
+#else
+  kp = (unsigned short)(p * MPrj::par_mult);
+  ki = (unsigned short)(i * MPrj::par_mult);
+  kd = (unsigned short)(d * MPrj::par_mult);
+#endif
+}
+
 
 // ==================================== Nvs read ====================================
 
@@ -426,74 +440,50 @@ void MTools::txSetShiftI(short val)
 }
 
   // Команды работы с ПИД-регулятором (без проверки на max):
-void MTools::txSetPidConfig(uint8_t _m, float _kp, float _ki, float _kd, uint16_t _minOut, uint16_t _maxOut)
+void MTools::txSetPidConfig(uint8_t _m, float p, float i, float d,
+                            uint16_t _minOut, uint16_t _maxOut)
 {
   pidMode = _m;
-  kp      = (unsigned short)(_kp * MPrj::par_mult);
-  ki      = (unsigned short)(_ki * MPrj::par_mult);
-  kd      = (unsigned short)(_kd * MPrj::par_mult);
+  // kp      = (unsigned short)(p * MPrj::par_mult);
+  // ki      = (unsigned short)(i * MPrj::par_mult);
+  // kd      = (unsigned short)(d * MPrj::par_mult);
+  calkKpKiKd(p, i, d);
   minOut  = _minOut;
   maxOut  = _maxOut;
   buffCmd = MCmd::cmd_pid_configure;                                                                 // 0x40 Запись
 }
 
-void MTools::txSetPidCoeff(unsigned short m, float _kp, float _ki, float _kd)    // 0x41 Запись
+void MTools::txSetPidCoeff(unsigned short m, float p, float i, float d)    // 0x41 Запись
 {
-    pidMode = m;
-    kp      = (unsigned short)(_kp * MPrj::par_mult);
-    ki      = (unsigned short)(_ki * MPrj::par_mult);
-    kd      = (unsigned short)(_kd * MPrj::par_mult);
-    buffCmd = MCmd::cmd_pid_write_coefficients;                                                      // 0x41 Запись
+  pidMode = m;
+    // kp      = (unsigned short)(p * MPrj::par_mult);
+    // ki      = (unsigned short)(i * MPrj::par_mult);
+    // kd      = (unsigned short)(d * MPrj::par_mult);
+  calkKpKiKd(p, i, d);
+  buffCmd = MCmd::cmd_pid_write_coefficients;                                                      // 0x41 Запись
 }
 
-//   // 0x41 Запись
-// void MTools::txSetPidCoeffV(float _kp, float _ki, float _kd)
-// {
-//   pidMode = MPrj::RU; //      1;
-//   kp      = (unsigned short) (_kp * MPrj::par_mult);
-//   ki      = (unsigned short) (_ki * MPrj::par_mult);
-//   kd      = (unsigned short) (_kd * MPrj::par_mult);
-//   buffCmd = MCmd::cmd_pid_write_coefficients;
-//   vTaskDelay(80 / portTICK_PERIOD_MS);
-// }
-
-//   // 0x41 Запись
-// void MTools::txSetPidCoeffI(float _kp, float _ki, float _kd)
-// {
-//   pidMode = MPrj::RI;   //2;
-//   kp      = (unsigned short) (_kp * MPrj::par_mult);
-    
-// //  Serial.print("\n_kp="); Serial.print(_kp, 2);
-// //  Serial.print("\npMult=0x"); Serial.print(pMult, HEX);
-// //  Serial.print("\nkp=0x"); Serial.print(kp, HEX);
-
-//   ki      = (unsigned short) (_ki * MPrj::par_mult);
-//   kd      = (unsigned short) (_kd * MPrj::par_mult);
-//   buffCmd = MCmd::cmd_pid_write_coefficients; 
-//   vTaskDelay(80 / portTICK_PERIOD_MS);
-// }
-
-
-
-  // 0x41 Запись
-void MTools::txSetPidCoeffC(float _kp, float _ki, float _kd)
+  // 0x41* Запись
+void MTools::txSetPidCoeffC(float p, float i, float d)
 {
   pidMode = MPrj::RU; //      1;
-  kp      = (unsigned short) (_kp * MPrj::par_mult);
-  ki      = (unsigned short) (_ki * MPrj::par_mult);
-  kd      = (unsigned short) (_kd * MPrj::par_mult);
+  // kp      = (unsigned short) (p * MPrj::par_mult);
+  // ki      = (unsigned short) (i * MPrj::par_mult);
+  // kd      = (unsigned short) (d * MPrj::par_mult);
+  calkKpKiKd(p, i, d);
   buffCmd = MCmd::cmd_pid_write_coefficients;
   vTaskDelay(80 / portTICK_PERIOD_MS);
 }
 
 
   // 0x41*
-void MTools::txSetPidCoeffD(float _kp, float _ki, float _kd)
+void MTools::txSetPidCoeffD(float p, float i, float d)
 {
   pidMode = MPrj::RD;   //3;
-  kp      = (unsigned short) (_kp * MPrj::par_mult);
-  ki      = (unsigned short) (_ki * MPrj::par_mult);
-  kd      = (unsigned short) (_kd * MPrj::par_mult);
+  // kp      = (unsigned short) (p * MPrj::par_mult);
+  // ki      = (unsigned short) (i * MPrj::par_mult);
+  // kd      = (unsigned short) (d * MPrj::par_mult);
+  calkKpKiKd(p, i, d);
   buffCmd = MCmd::cmd_pid_write_coefficients;
   vTaskDelay(80 / portTICK_PERIOD_MS);
 
@@ -512,15 +502,17 @@ void MTools::txSetPidOutputRange(uint8_t _m, uint16_t _minOut, uint16_t _maxOut)
     buffCmd = MCmd::cmd_pid_output_range;                                                             // 0x42 Запись
 }
 
-void MTools::txSetPidReconfig(uint8_t _m, float _kp, float _ki, float _kd, uint16_t _minOut, uint16_t _maxOut)
+void MTools::txSetPidReconfig(uint8_t _m, float p, float i, float d, 
+                              uint16_t _minOut, uint16_t _maxOut)
 {
     pidMode = _m;
-    kp      = (unsigned short)(_kp * MPrj::par_mult);
-    ki      = (unsigned short)(_ki * MPrj::par_mult);
-    kd      = (unsigned short)(_kd * MPrj::par_mult);
+    // kp      = (unsigned short)(p * MPrj::par_mult);
+    // ki      = (unsigned short)(i * MPrj::par_mult);
+    // kd      = (unsigned short)(d * MPrj::par_mult);
+    calkKpKiKd(p, i, d);
     minOut  = _minOut;
     maxOut  = _maxOut;
-    buffCmd = MCmd::cmd_pid_reconfigure;                                                              // 0x43 Запись
+    buffCmd = MCmd::cmd_pid_reconfigure;                                    // 0x43 Запись
 }
 
 void MTools::txPidClear()

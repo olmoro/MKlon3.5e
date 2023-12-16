@@ -89,6 +89,7 @@ class MTools
     unsigned short minOut   = 0x0220;
     unsigned short maxOut   = 0x1000;
 
+
     // PWM
     uint8_t  pwmInvert = (uint8_t)false;   // Выбор полярности PWM (v55: для отключения при сбросе - 0x00)
     uint16_t pwmPeriod = 0x1012;           // Выбор частоты (через период)
@@ -217,16 +218,16 @@ class MTools
     void txSetShiftI(short val);                            // 0x3E* Запись
 
       // Команды работы с ПИД-регулятором
-    void txSetPidConfig(uint8_t m, float kp, float ki, float kd, uint16_t minOut, uint16_t maxOut);   // 0x40 Запись
+    void txSetPidConfig(uint8_t m, float p, float i, float d, uint16_t minOut, uint16_t maxOut);   // 0x40 Запись
 
-    void txSetPidCoeff(unsigned short m, float kp, float ki, float kd);    // 0x41 Запись
+    void txSetPidCoeff(unsigned short m, float p, float i, float d);    // 0x41 Запись
     // void txSetPidCoeffV(float kp, float ki, float kd);      // 0x41* Запись
     // void txSetPidCoeffI(float kp, float ki, float kd);      // 0x41* Запись
-    void txSetPidCoeffC(float kp, float ki, float kd);      // 0x41* Запись
-    void txSetPidCoeffD(float kp, float ki, float kd);      // 0x41* Запись
+    void txSetPidCoeffC(float p, float i, float d);      // 0x41* Запись
+    void txSetPidCoeffD(float p, float i, float d);      // 0x41* Запись
 
     void txSetPidOutputRange(uint8_t m, uint16_t minOut, uint16_t maxOut);                               // 0x42
-    void txSetPidReconfig(uint8_t m, float kp, float ki, float kd, uint16_t minOut, uint16_t maxOut);    // 0x43, w/o clear
+    void txSetPidReconfig(uint8_t m, float p, float i, float d, uint16_t minOut, uint16_t maxOut);    // 0x43, w/o clear
     void txPidClear();                                      // 0x44*
 
     void txGetPidTreaty();                                  // 0x47* Get shift, bits, hz
@@ -427,6 +428,9 @@ class MTools
     float ahCharge          = 0.0f;
     int   timeCounter       = 0;
     int   chargeTimeCounter = 0;
+
+    void calkKpKiKd(float p, float i, float d);
+
 
     //================= Measures =====================
     int   keyCode = 0;    

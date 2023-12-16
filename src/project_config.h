@@ -28,8 +28,9 @@ namespace MPrj
   static constexpr unsigned short par_mult         = 0x8000u;    // pMult
   static constexpr unsigned short par_max          = 0x0001u;    // pMax
   static constexpr          float par_float_max    = 1.0f;
+  static constexpr unsigned short pid_hz           = 1000u;
   
-  static constexpr float kp_c_default = 0.45f;    //0.25f;
+  static constexpr float kp_c_default = 0.50f;
   static constexpr float ki_c_default = 0.45f;
   static constexpr float kd_c_default = 0.00f;
    

@@ -38,3 +38,15 @@ Flash: [========= ]  93.6% (used 1226790 bytes from 1310720 bytes)
 
 15.12.2023
 Восстановление предыдущей версии 
+Оставлена одна фиксированная частота пид-регулятора 1000hZ        - OK
+RAM:   [=         ]   9.1% (used 48500 bytes from 532480 bytes)
+Flash: [========= ]  93.6% (used 1226450 bytes from 1310720 bytes)
+
+16.12.2023
+Возврат предвычислений Ki и Kd на сторону ESP32 (-DKIKD)
+  calkKpKiKd(p, i, d);
+ESP32   - 
+SAMD21  - 
+RAM:   [=         ]   9.1% (used 48500 bytes from 532480 bytes)
+Flash: [========= ]  93.6% (used 1226478 bytes from 1310720 bytes)
+

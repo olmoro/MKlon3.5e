@@ -287,7 +287,7 @@ namespace MDevice
   }
   MState *MAdjPidD::fsm()
   {
-    switch ( Display->getKey() )
+    switch (Display->getKey())
     {
       case MDisplay::NEXT:    (mark >= 6) ? mark = 3 : mark++;
                               Display->drawParFl("setpoint, A :", 3, spD, 2, mark);
@@ -405,7 +405,7 @@ namespace MDevice
 
   MState *MFactorV::fsm()
   {
-    switch ( Display->getKey() )
+    switch (Display->getKey())
     {
       case MDisplay::SAVE:  Tools->writeNvsShort("device", "factorV", factor);
                             return new MAdjVoltage(Tools);        // Там выбрать или завершить
@@ -540,8 +540,7 @@ namespace MDevice
   MFactorI::MFactorI(MTools *Tools) : MState(Tools)
   {
     factor = Tools->readNvsShort("device", "factorI", fixed);
-//   Serial.print("\nFI=0x"); Serial.print(factor, HEX);
-        Tools->dischargeStopGo(500);
+    Tools->dischargeStopGo(500);
 
     // В главное окно выводятся:
     Display->drawLabel("Adjusting current factor:", 1); // полное название параметра (жёлтым)
@@ -897,7 +896,7 @@ namespace MDevice
 
   MState *MStop::fsm()
   {
-    switch ( Display->getKey() )
+    switch (Display->getKey())
     {
       case MDisplay::START:     return new MStart(Tools); // Возобновить
       case MDisplay::EXIT:      Display->newModeWin();
@@ -945,7 +944,7 @@ namespace MDevice
 
   MState *MClear::fsm()
   {
-    switch ( Display->getKey() )
+    switch (Display->getKey())
     {
       case MDisplay::NEXT:  (mark >= 5) ? mark = 2 : mark++;
                             Display->drawAdj(   "device", 2, mark);
@@ -983,7 +982,7 @@ namespace MDevice
 
   MState *MClrDevKeys::fsm()
   {
-    switch ( Display->getKey() )
+    switch (Display->getKey())
     {
       case MDisplay::GO:    Tools->clearAllKeys("device");  // в открытом пространстве имен
       case MDisplay::BACK:  return new MClear(Tools);
@@ -1110,7 +1109,7 @@ namespace MDevice
 
   MState *MMultXY::fsm()
   {
-    switch ( Display->getKey() )
+    switch (Display->getKey())
     {
       case MDisplay::NEXT:  (mark >= 3) ? mark = 2 : mark++;
                             Display->drawAdj( "Touch X", 2, mark);
@@ -1143,7 +1142,7 @@ namespace MDevice
 
   MState *MMultX::fsm()
   {
-    switch ( Display->getKey() )
+    switch (Display->getKey())
     {
       case MDisplay::SAVE:  Tools->writeNvsShort("device", "touchx", touchX);
                             return new MMultXY(Tools); // Вернуться
