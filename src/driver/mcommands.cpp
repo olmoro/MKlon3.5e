@@ -67,6 +67,7 @@ void MCommands::doCommand()
 //      case MCmd::cmd_power_on:            doPowerOn();          break;  // 0x28
       case MCmd::cmd_power_off:               doPowerOff();               break;  // 0x29
       case MCmd::cmd_idle:                    doIdle();               break;  // 0x2A
+      case MCmd::cmd_auto_current_up:         doAutoCurrentUp();          break;  // 0x2B
 
         // Команды работы с измерителем напряжения 
       case MCmd::cmd_read_factor_u:           doGetFactorU();             break;  // 0x30
@@ -744,6 +745,15 @@ void MCommands::doIdle()
   Wake->configAsk(id, MCmd::cmd_idle);  
 }
 
+    // 0x2B* 
+void MCommands::doAutoCurrentUp()
+{
+  int id = 0;
+  id = Wake->replyU16( id, Tools->setpointU );
+  id = Wake->replyU16( id, Tools->setpointI );
+  id = Wake->replyU08( id, Tools->deltaI );
+  Wake->configAsk( id, MCmd::cmd_auto_current_up);
+}
 
 
 

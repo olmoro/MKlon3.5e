@@ -45,8 +45,10 @@ Flash: [========= ]  93.6% (used 1226450 bytes from 1310720 bytes)
 16.12.2023
 Возврат предвычислений Ki и Kd на сторону ESP32 (-DKIKD)
   calkKpKiKd(p, i, d);
-ESP32   - 
-SAMD21  - 
+ESP32   - ok
+SAMD21  - ok
 RAM:   [=         ]   9.1% (used 48500 bytes from 532480 bytes)
 Flash: [========= ]  93.6% (used 1226478 bytes from 1310720 bytes)
 
+txAutoCurrentUp(short spV, short spI, short dI);   // 0x2B      - OK
+di - дельта приращения тока (мА) за один шаг регулятора

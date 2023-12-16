@@ -77,6 +77,7 @@ class MTools
     uint16_t setpoint       = 0x0800;     // 
     uint16_t setpointU      = 0x3390;     // 13200
     uint16_t setpointI      = 0x0BB8;     //  3000
+    short    deltaI         = 0x0000;
     uint16_t setpointD      = 0x0258;     //   600
     uint16_t ready          = 0x0000;     //  
     void  setReady(short ready);
@@ -191,7 +192,9 @@ class MTools
 
 //    void txPowerOn();                                   // 0x28
     void txPowerOff();                                      // 0x29*
-    void txIdle();                                      // 0x2A*
+    void txIdle();                                          // 0x2A* - отменено
+    void txAutoCurrentUp(short spV, short spI, short dI);   // 0x2B
+
 
       // Команды работы с измерителем напряжения
         // Множитель преобразования в милливольты

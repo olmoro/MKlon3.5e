@@ -56,6 +56,7 @@ class MCommands
     //void doPowerOn();                 // 0x28   Зарезервировано
     void doPowerOff();                  // 0x29   Перевод в режим ХХ
     void doIdle();                  // 0x2A*  Отключить в холостой ход
+    void doAutoCurrentUp();             // 0x2B* 
 
         // Команды работы с измерителем напряжения 
     void doGetFactorU();                // 0x30   

@@ -183,8 +183,9 @@ namespace MCccv
     */ 
     Tools->txPidClear();                  // 0x44*
     target = minI;                        // Начальное задание тока
-    Tools->txPowerAuto(maxV, target);     /* 0x20*  Команда драйверу запустить ПИД-регулятор
-                                          в автоматическом режиме */
+  //  Tools->txPowerAuto(maxV, target);     /* 0x20*  Команда драйверу запустить ПИД-регулятор
+  //                                        в автоматическом режиме */
+    Tools->txAutoCurrentUp(maxV, maxI, 20);         // 0x2B*
   }
 
   MState *MUpCurrent::fsm()

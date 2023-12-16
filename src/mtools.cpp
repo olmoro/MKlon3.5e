@@ -345,6 +345,19 @@ void MTools::txPowerAuto(short spV, short spI)
   vTaskDelay(80 / portTICK_PERIOD_MS);
 } 
 
+  // 0x2B*
+void MTools::txAutoCurrentUp(short spV, short spI, short dI)
+{
+  setpointU = spV;
+  setpointI = spI;
+  deltaI    = dI;
+  buffCmd   = MCmd::cmd_auto_current_up;
+  vTaskDelay(80 / portTICK_PERIOD_MS);
+} 
+
+
+
+
   // Команда перевода в безопасный режим (выключение)               // 0x21 
 void MTools::txPowerStop()
 {
