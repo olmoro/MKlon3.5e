@@ -52,3 +52,4 @@ Flash: [========= ]  93.6% (used 1226478 bytes from 1310720 bytes)
 
 txAutoCurrentUp(short spV, short spI, short dI);   // 0x2B      - OK
 di - дельта приращения тока (мА) за один шаг регулятора
+на стороне samd не реализована
