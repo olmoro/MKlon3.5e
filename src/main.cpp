@@ -83,6 +83,7 @@ void setup()
   xTaskCreatePinnedToCore( coolTask,    "Cool",     2048, NULL, 1, &xTask_Cool,    1 ); 
   xTaskCreatePinnedToCore( measureTask, "Measure",  4096, NULL, 1, &xTask_Measure, 1 ); 
   xTaskCreatePinnedToCore( driverTask,  "Driver",   4096, NULL, 4, &xTask_Driver,  1 ); 
+
 }
 
 void loop() 

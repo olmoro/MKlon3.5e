@@ -56,7 +56,7 @@ class MCommands
     //void doPowerOn();                 // 0x28   Зарезервировано
     void doPowerOff();                  // 0x29   Перевод в режим ХХ
     void doIdle();                  // 0x2A*  Отключить в холостой ход
-    void doAutoCurrentUp();             // 0x2B* 
+    void doAutoCurrentUp();             // 0x2B 
 
         // Команды работы с измерителем напряжения 
     void doGetFactorU();                // 0x30   
@@ -78,7 +78,7 @@ class MCommands
 
         // Команды работы с регуляторами
     void doPidConfigure();              // 0x40   
-    void doPidSetCoefficients();        // 0x41*   
+    void doPidSetCoefficients();        // 0x41   
     void doPidOutputRange();            // 0x42   
     void doPidReconfigure();            // 0x43   
     void doPidClear();                  // 0x44   
@@ -89,7 +89,12 @@ class MCommands
     //void doPidSetTreaty();              // 0x4A (резерв) 
   #ifndef HZ1000
     void doPidSetFrequency();           // 0x4A
-  #endif    
+  #endif  
+
+    void doPidSetChargeShort();         // 0x4C
+    void doPidSetDischargeShort();      // 0x4D
+
+
     //     // Команды работы с АЦП
     void doReadProbes();                // 0x50   
     // void doAdcGetOffset();              // 0x51   nu

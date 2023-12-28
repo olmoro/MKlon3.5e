@@ -73,6 +73,10 @@ namespace MCmd
   // #ifndef HZ1000
   //   constexpr uint8_t cmd_pid_write_frequency       = 0x4A; //Запись частоты pid-регулятора
   // #endif
+
+  constexpr uint8_t cmd_pid_set_charge_short      = 0x4C;
+  constexpr uint8_t cmd_pid_set_discharge_short   = 0x4B;
+
     // АЦП - настройки
   constexpr uint8_t cmd_adc_read_probes           = 0x50; // Read all probes
 //   constexpr uint8_t cmd_adc_read_offset           = 0x51; // Читать смещение АЦП

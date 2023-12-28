@@ -152,7 +152,7 @@ namespace MDevice
       MLoadKp(MTools * Tools);
       MState * fsm() override;
     private:
-      static constexpr float up = MPrj::par_float_max;    //1.00f;
+      static constexpr float up = MPrj::par_float_max;    //5.11f;
       static constexpr float dn = 0.01f; 
   };
 
@@ -163,7 +163,7 @@ namespace MDevice
       MLoadKi(MTools * Tools);
       MState * fsm() override;
     private:
-      static constexpr float up = MPrj::par_float_max;    //4.00f;
+      static constexpr float up = MPrj::par_float_max;    //5.11f;
       static constexpr float dn = 0.00f;
   };
 
@@ -174,7 +174,7 @@ namespace MDevice
       MLoadKd(MTools * Tools);
       MState * fsm() override;
     private:
-      static constexpr float up = MPrj::par_float_max;    //1.00f;
+      static constexpr float up = MPrj::par_float_max;    //5.11f;
       static constexpr float dn = 0.00f;
   };
 

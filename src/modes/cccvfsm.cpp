@@ -28,7 +28,7 @@
   не так ли?
     И напоследок: замечено, что не следует создавать сложные состояния, лучше их дробить
   на более простые. 
-  Версия от 10.12.2023 
+  Версия от 27.12.2023 
 */
 
 #include "modes/cccvfsm.h"
@@ -43,11 +43,11 @@
 
 namespace MCccv
 {
-  short maxV, maxI, minI, minV;                 // Заданные параметры заряда
-  float kp, ki, kd;                             // Заданные коэффициенты ПИД-регулятора 
-  short voltageNom    = MPrj::nominal_v_fixed;  // Номинальное напряжение батареи, вольты 
-  short capacity      = MPrj::capacity_fixed;   // Ёмкость батареи, ампер-часы
-  short timeOut       = MPrj::timeout_fixed;    // Длительность заряда, часы
+  short maxV, maxI, minI, minV;              // Заданные параметры заряда, мВ и мА
+  float kp, ki, kd;                          // Заданные коэффициенты ПИД-регулятора 
+  short voltageNom = MPrj::nominal_v_fixed;  // Номинальное напряжение батареи, вольты 
+  short capacity   = MPrj::capacity_fixed;   // Ёмкость батареи, ампер-часы
+  short timeOut    = MPrj::timeout_fixed;    // Длительность заряда, часы
   static short target;
 
   //========================================================================= MStart
@@ -56,9 +56,9 @@ namespace MCccv
   {
     /* Каждое состояние представлено своим классом. Это конструктор класса MStart, 
     исполняющий процесс инициализации, и только один раз, пока не произведен 
-    вход и иное состояние. */
+    вход в иное состояние. */
 
-         Tools->txPowerStop();                 // 0x21*  Команда драйверу
+    Tools->txPowerStop();  // 0x21*  Команда драйверу отключить "силу".
 
     /*  Параметры заряда восстанавливаются из энергонезависимой памяти. Пороговые значения 
     напряжений и токов рассчитываются исходя из типа батареи, её номинального напряжения и 
@@ -73,9 +73,6 @@ namespace MCccv
     maxI       = Tools->readNvsShort("options", "maxI", MPrj::max_i_fixed);
     minI       = Tools->readNvsShort("options", "minI", MPrj::min_i_fixed);  // Test 550
     timeOut    = 1;  //Tools->readNvsShort("options", "timeout",  MPrj::timeout_fixed);   // Test
-
-//  Serial.print("\nmaxI="); Serial.print(maxI);  
-
 
 
     /* Вывод в главное окно построчно (26 знакомест):
@@ -118,12 +115,14 @@ namespace MCccv
   MPostpone::MPostpone(MTools * Tools) : MState(Tools)
   {
     Tools->postpone = Tools->readNvsShort("options", "postpone", MPrj::postpone_fixed);
-      // Восстановление пользовательских kp, ki, kd для заряда
+      /* Восстановление пользовательских kp, ki, kd для заряда. Используется 
+      исключительно для индикации. */
     kp = Tools->readNvsFloat("device", "kpC", MPrj::kp_c_default);
     ki = Tools->readNvsFloat("device", "kiC", MPrj::ki_c_default);
     kd = Tools->readNvsFloat("device", "kdC", MPrj::kd_c_default);
-
-    Tools->txSetPidCoeffC(kp, ki, kd);                             // 0x41* Применить
+      /* Для исполнения раскомментируйте следующую строку, иначе будут исполнены 
+      веденные пользователем или заводские данные. */
+    // Tools->txSetPidCoeffC(kp, ki, kd);                             // 0x41* Применить
 
       // Инициализация счетчика времени до старта
     Tools->setTimeCounter( Tools->postpone * 36000 );    // Отложенный старт ( * 0.1s в этой версии)
@@ -183,9 +182,9 @@ namespace MCccv
     */ 
     Tools->txPidClear();                  // 0x44*
     target = minI;                        // Начальное задание тока
-  //  Tools->txPowerAuto(maxV, target);     /* 0x20*  Команда драйверу запустить ПИД-регулятор
-  //                                        в автоматическом режиме */
-    Tools->txAutoCurrentUp(maxV, maxI, 20);         // 0x2B*
+    Tools->txPowerAuto(maxV, target);     // 0x20*  Команда драйверу запустить ПИД-регулятор
+  //  Tools->txPowerAuto(maxV, maxI);     // 0x20*  Команда драйверу запустить ПИД-регулятор
+  //                                      // в автоматическом режиме */
   }
 
   MState *MUpCurrent::fsm()
@@ -338,10 +337,13 @@ namespace MCccv
       о продолжительности и отданном заряде. */
   MStop::MStop(MTools * Tools) : MState(Tools)
   {
-    Tools->txPowerAuto(minV, 0);      // 0X20*
+//    Tools->txPowerAuto(minV, 0);      // 0X20*
+//      target = Tools->getMilliAmper();
 
     Tools->txPowerStop();             // 0x21* Команда драйверу отключить преобразователь
  
+  Tools->txGetPidConfig( 1);
+
     Display->drawLabel(                 "CCCV", 0);
     Display->drawLabel("The charge is stopped", 1);
     Display->drawLabel(          "Statistics:", 2);
@@ -355,6 +357,12 @@ namespace MCccv
   }    
   MState * MStop::fsm()
   {
+    //   // Ожидание спада тока ниже C/20 ампер.
+    // if(Tools->getMilliAmper() >= target * 0.9)        return this;  //new MKeepVmin(Tools);
+    // else Tools->txPowerStop();             // 0x21* Команда драйверу отключить преобразователь
+
+
+
     switch (Display->getKey())
     {
       case MDisplay::START:         return new MStart(Tools); // Возобновить
@@ -374,6 +382,9 @@ namespace MCccv
   // Состояние: "Выход из режима заряда в меню диспетчера (автоматический)" 
   MExit::MExit(MTools * Tools) : MState(Tools)
   {
+
+
+
     Tools->aboutMode(MDispatcher::CCCV);
     Display->newBtn(MDisplay::GO, MDisplay::UP, MDisplay::DN);
   }

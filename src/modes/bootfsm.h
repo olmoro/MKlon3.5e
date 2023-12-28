@@ -4,6 +4,10 @@
 #include "state/mstate.h"
 #include "project_config.h"
 
+// #ifdef NEWBOOT
+
+
+
 namespace MBoot
 {
   class MStart : public MState
@@ -12,6 +16,9 @@ namespace MBoot
       MStart(MTools * Tools);
       MState * fsm() override;
   };
+
+
+#ifdef OLDBOOT
 
   class MTxPowerStop : public MState
   {
@@ -88,6 +95,7 @@ namespace MBoot
       MState * fsm() override;
   };
 
+#endif // OLDBOOT
 
   class MExit : public MState
   {

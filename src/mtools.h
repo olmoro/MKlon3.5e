@@ -38,7 +38,7 @@ class MTools
     // void  setModeSelection( short );
     void aboutMode( short modeSelection );
 
-
+    void boot();
 
 
     // Флаг блокировки обмена с драйвером на время его рестарта
@@ -90,6 +90,10 @@ class MTools
     unsigned short minOut   = 0x0220;
     unsigned short maxOut   = 0x1000;
 
+    // Тестовые - для чтения SAMD
+    unsigned short p       = 0;
+    unsigned short i       = 0;
+    unsigned short d       = 0;
 
     // PWM
     uint8_t  pwmInvert = (uint8_t)false;   // Выбор полярности PWM (v55: для отключения при сбросе - 0x00)
@@ -220,6 +224,9 @@ class MTools
     void txGetShiftI();                                     // 0x3D Чтение
     void txSetShiftI(short val);                            // 0x3E* Запись
 
+    void txSetPidShortC();                            // 0x
+    void txSetPidShortD();
+
       // Команды работы с ПИД-регулятором
     void txSetPidConfig(uint8_t m, float p, float i, float d, uint16_t minOut, uint16_t maxOut);   // 0x40 Запись
 
@@ -230,11 +237,19 @@ class MTools
     void txSetPidCoeffD(float p, float i, float d);      // 0x41* Запись
 
     void txSetPidOutputRange(uint8_t m, uint16_t minOut, uint16_t maxOut);                               // 0x42
-    void txSetPidReconfig(uint8_t m, float p, float i, float d, uint16_t minOut, uint16_t maxOut);    // 0x43, w/o clear
+    void txSetPidReconfig(uint8_t m, float p, float i, float d,
+                        uint16_t minOut, uint16_t maxOut);    // 0x43*, w/o clear
     void txPidClear();                                      // 0x44*
 
     void txGetPidTreaty();                                  // 0x47* Get shift, bits, hz
-    void txGetPidConfig();                                  // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
+
+    //void txGetPidConfig();                                  // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
+    void txGetPidConfig(uint8_t m);                 // 0x48 (mode): kP, kI, kD режима по выбору
+
+
+    void txSetPidChargeShort();               // 0x4C*
+    void txSetPidDischargeShort();               // 0x4D*
+
     //void txSetPidTreaty(unsigned short shift, unsigned short bits, unsigned short hz);  // 0x4A Запись
   // #ifndef HZ1000
   //   void txSetPidFrequency(unsigned short hz);              // 0x4A* Запись
@@ -403,6 +418,13 @@ class MTools
 
     void dischargeStopGo(short spD); 
 
+// //    void calkKpKiKd(float p, float i, float d);
+    // unsigned short kpToShort(float p);
+    // unsigned short kiToShort(float i);
+    // unsigned short kdToShort(float d);
+
+
+
   private:
     //==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ==== PRIVATE ====
 
@@ -432,7 +454,6 @@ class MTools
     int   timeCounter       = 0;
     int   chargeTimeCounter = 0;
 
-    void calkKpKiKd(float p, float i, float d);
 
 
     //================= Measures =====================

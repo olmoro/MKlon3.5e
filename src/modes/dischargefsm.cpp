@@ -336,7 +336,7 @@ namespace MDis
     /* Состояние разряда */
   MGo::MGo(MTools * Tools) : MState(Tools)
   {
-    target = MPrj::discurrent_default_min;   //100;                                            // Начальное задание тока
+    target = MPrj::discurrent_default_min;   //100;               // Начальное задание тока
 
 //  Display->drawLabel(        "Mode DISCHARGE", 0);
     Display->drawLabel("The process is running", 1);

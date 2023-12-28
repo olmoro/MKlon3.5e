@@ -53,3 +53,18 @@ Flash: [========= ]  93.6% (used 1226478 bytes from 1310720 bytes)
 txAutoCurrentUp(short spV, short spI, short dI);   // 0x2B      - OK
 di - дельта приращения тока (мА) за один шаг регулятора
 на стороне samd не реализована
+
+22.12.2023
+Предвычисления ... функции преобразования коэффициентов:        - OK
+  unsigned short kpToShort(float p);
+  unsigned short kiToShort(float i);
+  unsigned short kdToShort(float d); 
+В NVS коэффициенты остаются в формате float, преобразования 
+только при передаче на исполнение SAMD21
+
+27.12.2023
+Оптимизирован начальный загрузчик DOOT:
+Добавлены инициализации PIDC и PIDD (0x43)      - OK
+0x41      включает заряд??? - исправлено        - OK
+Отредактирован project_config.h                 - OK
+firmware_20231227.zip                           - OK

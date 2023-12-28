@@ -89,7 +89,7 @@ void MCommands::doCommand()
 
         // Команды работы с ПИД-регулятором
       case MCmd::cmd_pid_configure:             doPidConfigure();         break;  // 0x40
-      case MCmd::cmd_pid_write_coefficients:    doPidSetCoefficients();   break;  // 0x41*
+      case MCmd::cmd_pid_write_coefficients:    doPidSetCoefficients();   break;  // 0x41
       case MCmd::cmd_pid_output_range:          doPidOutputRange();       break;  // 0x42
       case MCmd::cmd_pid_reconfigure:           doPidReconfigure();       break;  // 0x43
       case MCmd::cmd_pid_clear:                 doPidClear();             break;  // 0x44
@@ -101,6 +101,10 @@ void MCommands::doCommand()
     // #ifndef HZ1000
     //   case MCmd::cmd_pid_write_frequency:       doPidSetFrequency();      break;  // 0x4A Задание частоты pid-регулятора
     // #endif
+      case MCmd::cmd_pid_set_charge_short:       doPidSetChargeShort();    break;  // 0x4C
+      case MCmd::cmd_pid_set_discharge_short:    doPidSetDischargeShort(); break;  // 0x4D
+
+
         // Команды работы с АЦП
       case MCmd::cmd_adc_read_probes:           doReadProbes();           break;  // 0x50
 //       case MCmd::cmd_adc_read_offset:           doAdcGetOffset();         break;  // 0x51
@@ -401,11 +405,8 @@ short MCommands::dataProcessing()
     case MCmd::cmd_pid_reconfigure:             // 0x43   + 0B->01
     case MCmd::cmd_pid_clear:                   // 0x44   + 01->01
     case MCmd::cmd_pid_test:                    // 0x46   + 03->01
-      if(( Wake->get08(0) == 0 ) && ( Wake->getNbt() == 1 ))
-      {
-        return 0;  //Tools->setProtErr(0);
-      }
-      else  return 1;  //Tools->setProtErr(1);  // ошибка протокола или нет подтверждения исполнения команды 
+      if(( Wake->get08(0) == 0 ) && ( Wake->getNbt() == 1 ))  return 0;
+      else  return 1; // ошибка протокола или нет подтверждения исполнения команды 
     break;
 
       // Чтение параметров обмена с ПИД-регулятором
@@ -437,14 +438,15 @@ short MCommands::dataProcessing()
 
       // Чтение настроек обмена ПИД-регулятора                  // 0x48 (не используется, резерв)
     case MCmd::cmd_pid_read_configure:
-      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 12) )
+      //if( (Wake->get08(0) == 0) && (Wake->getNbt() == 12) )
+      if( (Wake->get08(0) == 0) && (Wake->getNbt() == 7) )
       {
-        Tools->pidMode  = Wake->get08(1);
-        Tools->kp       = Wake->get16(2);
-        Tools->ki       = Wake->get16(4);
-        Tools->kd       = Wake->get16(6);
-        Tools->minOut   = Wake->get16(8);
-        Tools->maxOut   = Wake->get16(10);
+//        Tools->pidMode  = Wake->get08(1);
+        Tools->p       = Wake->get16(1);      // без преобразования во float
+        Tools->i       = Wake->get16(3);
+        Tools->d       = Wake->get16(5);
+//        Tools->minOut   = Wake->get16(8);
+//        Tools->maxOut   = Wake->get16(10);
         return 0;  //Tools->setProtErr(0);                      // Подтверждение
       }
       else  return 1;  //Tools->setProtErr(1);                  // ошибка
@@ -452,16 +454,14 @@ short MCommands::dataProcessing()
 
       // case cmd_pid_write_max_sum:         doPidSetMaxSum();           break;  // 0x49   + 0?->0?
 
-  // #ifndef HZ1000
-  //   //constexpr uint8_t cmd_pid_write_frequency       = 0x4A; //Запись частоты pid-регулятора
-  //   case MCmd::cmd_pid_write_frequency:
-  //     if( (Wake->get08(0) == 0) && (Wake->getNbt() == 1) )
-  //     {
-  //       return 0;
-  //     }
-  //     else  return 1;  // ошибка протокола или нет подтверждения исполнения команды 
-  //   break;
-  // #endif
+
+    case MCmd::cmd_pid_set_charge_short:
+    case MCmd::cmd_pid_set_discharge_short:
+      if(( Wake->get08(0) == 0 ) && ( Wake->getNbt() == 1 ))  return 0;
+      else  return 1;  // ошибка протокола или нет подтверждения исполнения команды 
+    break; 
+
+
 
     //   // ================ Команды работы с АЦП =================
     //   // Чтение АЦП                                        0x50   + 00->07
@@ -947,6 +947,7 @@ void MCommands::doPidGetTreaty()
 void MCommands::doPidGetConfigure() 
 {
   int id = 0;
+  id = Wake->replyU08( id, Tools->pidMode );
   Wake->configAsk( id, MCmd::cmd_pid_read_configure);
   // ...
 }  
@@ -980,6 +981,25 @@ void MCommands::doPidGetConfigure()
 //   }
 // #endif
 
+// Предвычисления и преобразования коэффициентов ПИД-регулятора заряда      0x4C
+void MCommands::doPidSetChargeShort()
+{
+  int id = 0;
+  id = Wake->replyU16( id, Tools->readNvsFloat("device", "kpC", MPrj::kp_c_default) * MPrj::par_mult);
+  id = Wake->replyU16( id, Tools->readNvsFloat("device", "kiC", MPrj::ki_c_default) * MPrj::par_mult);
+  id = Wake->replyU16( id, Tools->readNvsFloat("device", "kdC", MPrj::kd_c_default) * MPrj::par_mult);
+  Wake->configAsk( id, MCmd::cmd_pid_set_charge_short);
+}
+
+// Предвычисления и преобразования коэффициентов ПИД-регулятора разряда     0x4D
+void MCommands::doPidSetDischargeShort()
+{
+  int id = 0;
+  id = Wake->replyU16( id, Tools->readNvsFloat("device", "kpD", MPrj::kp_d_default) * MPrj::par_mult);
+  id = Wake->replyU16( id, Tools->readNvsFloat("device", "kiD", MPrj::ki_d_default) * MPrj::par_mult);
+  id = Wake->replyU16( id, Tools->readNvsFloat("device", "kdD", MPrj::kd_d_default) * MPrj::par_mult);
+  Wake->configAsk( id, MCmd::cmd_pid_set_discharge_short);
+}
 
 //================= Команды работы с АЦП =================
 

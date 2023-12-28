@@ -149,6 +149,31 @@ void MTools::aboutMode(short modeSelection)
   Display->clearLine( 4, 6 ); 
 }
 
+// Вариант загрузчика
+void MTools::boot()
+{
+  setBlocking(true);                    // Блокировать обмен
+  vTaskDelay(1000/portTICK_PERIOD_MS);  // Не беспокоим драйвер (3) секунды после рестарта 
+  setBlocking(false);                   // Разблокировать обмен
+//  txGetPidTreaty();                     // 0x47 : Get short, short, short   nu
+  txSetFactorU(readNvsShort("device", "factorV", MPrj::factor_v_default));  // 0x31 : Set short
+  txSetSmoothU(readNvsShort("device", "smoothV", MPrj::smooth_v_default));  // 0x34 : Set byte
+  txSetShiftU(readNvsShort ("device", "offsetV", MPrj::shift_v_default));   // 0x36 : Set short
+  txSetFactorI(readNvsShort("device", "factorI", MPrj::factor_i_default));  // 0x39 : Set short
+  txSetSmoothI(readNvsShort("device", "smoothI", MPrj::smooth_i_default));  // 0x3C : Set byte
+  txSetShiftI(readNvsShort ("device", "offsetI", MPrj::shift_i_default));   // 0x3E : Set short
+  txSetPidReconfig( MPrj::RU, 
+                    readNvsFloat("device", "kpC", MPrj::kp_c_default),
+                    readNvsFloat("device", "kiC", MPrj::ki_c_default),
+                    readNvsFloat("device", "kdC", MPrj::kd_c_default),
+                    MPrj::pwm_min, MPrj::pwm_max );                         // 0x43
+  txSetPidReconfig( MPrj::RD,
+                    readNvsFloat("device", "kpD", MPrj::kp_d_default),
+                    readNvsFloat("device", "kiD", MPrj::ki_d_default),
+                    readNvsFloat("device", "kdD", MPrj::kd_d_default),
+                    MPrj::dac_min, MPrj::dac_max );                         // 0x43
+}
+
 
 
 
@@ -168,19 +193,35 @@ void  MTools::chargeCalculations()
   ahCharge += current / 36000.0;
 }
 
-void MTools::calkKpKiKd(float p, float i, float d)
-{
-#ifdef KIKD
-  // ki вычисляется с округлением
-  kp = (unsigned short)(p * MPrj::par_mult);
-  ki = (unsigned short)(((i * MPrj::par_mult) + (MPrj::pid_hz >> 1)) / MPrj::pid_hz);
-  kd = (unsigned short)((d * MPrj::par_mult) * MPrj::pid_hz);
-#else
-  kp = (unsigned short)(p * MPrj::par_mult);
-  ki = (unsigned short)(i * MPrj::par_mult);
-  kd = (unsigned short)(d * MPrj::par_mult);
-#endif
-}
+// // Предвычисления коэффициентов пид-регуляторов.
+// unsigned short MTools::kpToShort(float p)
+//   {return (unsigned short)(p * MPrj::par_mult);}
+// unsigned short MTools::kiToShort(float i)
+//   {return (unsigned short)(((i * MPrj::par_mult) + (MPrj::pid_hz >> 1)) / MPrj::pid_hz);}
+// unsigned short MTools::kdToShort(float d)
+//   {return (unsigned short)((d * MPrj::par_mult) *  MPrj::pid_hz);}
+
+// Предвычисления коэффициентов пид-регуляторов.
+// unsigned short MTools::kpToShort(float p) {return (unsigned short)(p * MPrj::par_mult);}
+// unsigned short MTools::kiToShort(float i) {return (unsigned short)(i * MPrj::par_mult);}
+// unsigned short MTools::kdToShort(float d) {return (unsigned short)(d * MPrj::par_mult);}
+
+
+
+
+// void MTools::calkKpKiKd(float p, float i, float d)
+// {
+// #ifdef KIKD
+//   // ki вычисляется с округлением
+//   kp = kpToShort(p);  // (unsigned short)(p * MPrj::par_mult);
+//   ki = kiToShort(i);  //(unsigned short)(((i * MPrj::par_mult) + (MPrj::pid_hz >> 1)) / MPrj::pid_hz);
+//   kd = kdToShort(d);  // (unsigned short)((d * MPrj::par_mult) * MPrj::pid_hz);
+// #else
+//   kp = (unsigned short)(p * MPrj::par_mult);
+//   ki = (unsigned short)(i * MPrj::par_mult);
+//   kd = (unsigned short)(d * MPrj::par_mult);
+// #endif
+// }
 
 
 // ==================================== Nvs read ====================================
@@ -453,37 +494,57 @@ void MTools::txSetShiftI(short val)
 }
 
   // Команды работы с ПИД-регулятором (без проверки на max):
+
+void MTools::txSetPidShortC()
+{
+
+}
+
+
+
+
 void MTools::txSetPidConfig(uint8_t _m, float p, float i, float d,
                             uint16_t _minOut, uint16_t _maxOut)
 {
   pidMode = _m;
-  // kp      = (unsigned short)(p * MPrj::par_mult);
-  // ki      = (unsigned short)(i * MPrj::par_mult);
-  // kd      = (unsigned short)(d * MPrj::par_mult);
-  calkKpKiKd(p, i, d);
+  kp      = (unsigned short)(p * MPrj::par_mult);
+  ki      = (unsigned short)(i * MPrj::par_mult);
+  kd      = (unsigned short)(d * MPrj::par_mult);
+  // //calkKpKiKd(p, i, d);
+  // kp = kpToShort(p);
+  // ki = kiToShort(i);
+  // kd = kdToShort(d);
   minOut  = _minOut;
   maxOut  = _maxOut;
-  buffCmd = MCmd::cmd_pid_configure;                                                                 // 0x40 Запись
+  buffCmd = MCmd::cmd_pid_configure;                                                   // 0x40 Запись
 }
 
 void MTools::txSetPidCoeff(unsigned short m, float p, float i, float d)    // 0x41 Запись
 {
   pidMode = m;
-    // kp      = (unsigned short)(p * MPrj::par_mult);
-    // ki      = (unsigned short)(i * MPrj::par_mult);
-    // kd      = (unsigned short)(d * MPrj::par_mult);
-  calkKpKiKd(p, i, d);
-  buffCmd = MCmd::cmd_pid_write_coefficients;                                                      // 0x41 Запись
+    kp      = (unsigned short)(p * MPrj::par_mult);
+    ki      = (unsigned short)(i * MPrj::par_mult);
+    kd      = (unsigned short)(d * MPrj::par_mult);
+  // //calkKpKiKd(p, i, d);
+  // kp = kpToShort(p);  // (unsigned short)(p * MPrj::par_mult);
+  // ki = kiToShort(i);  //(unsigned short)(((i * MPrj::par_mult) + (MPrj::pid_hz >> 1)) / MPrj::pid_hz);
+  // kd = kdToShort(d);  // (unsigned short)((d * MPrj::par_mult) * MPrj::pid_hz);
+  buffCmd = MCmd::cmd_pid_write_coefficients;                              // 0x41 Запись
 }
 
   // 0x41* Запись
 void MTools::txSetPidCoeffC(float p, float i, float d)
 {
-  pidMode = MPrj::RU; //      1;
-  // kp      = (unsigned short) (p * MPrj::par_mult);
-  // ki      = (unsigned short) (i * MPrj::par_mult);
-  // kd      = (unsigned short) (d * MPrj::par_mult);
-  calkKpKiKd(p, i, d);
+  pidMode = MPrj::RU;
+
+  kp      = (unsigned short) (p * MPrj::par_mult);
+  ki      = (unsigned short) (i * MPrj::par_mult);
+  kd      = (unsigned short) (d * MPrj::par_mult);
+
+  // //calkKpKiKd(p, i, d);
+  // kp = kpToShort(p);
+  // ki = kiToShort(i);
+  // kd = kdToShort(d);
   buffCmd = MCmd::cmd_pid_write_coefficients;
   vTaskDelay(80 / portTICK_PERIOD_MS);
 }
@@ -492,11 +553,14 @@ void MTools::txSetPidCoeffC(float p, float i, float d)
   // 0x41*
 void MTools::txSetPidCoeffD(float p, float i, float d)
 {
-  pidMode = MPrj::RD;   //3;
-  // kp      = (unsigned short) (p * MPrj::par_mult);
-  // ki      = (unsigned short) (i * MPrj::par_mult);
-  // kd      = (unsigned short) (d * MPrj::par_mult);
-  calkKpKiKd(p, i, d);
+  pidMode = MPrj::RD;
+  kp      = (unsigned short) (p * MPrj::par_mult);
+  ki      = (unsigned short) (i * MPrj::par_mult);
+  kd      = (unsigned short) (d * MPrj::par_mult);
+  // //calkKpKiKd(p, i, d);
+  // kp = kpToShort(p);
+  // ki = kiToShort(i);
+  // kd = kdToShort(d);
   buffCmd = MCmd::cmd_pid_write_coefficients;
   vTaskDelay(80 / portTICK_PERIOD_MS);
 
@@ -519,13 +583,17 @@ void MTools::txSetPidReconfig(uint8_t _m, float p, float i, float d,
                               uint16_t _minOut, uint16_t _maxOut)
 {
     pidMode = _m;
-    // kp      = (unsigned short)(p * MPrj::par_mult);
-    // ki      = (unsigned short)(i * MPrj::par_mult);
-    // kd      = (unsigned short)(d * MPrj::par_mult);
-    calkKpKiKd(p, i, d);
+    kp      = (unsigned short)(p * MPrj::par_mult);
+    ki      = (unsigned short)(i * MPrj::par_mult);
+    kd      = (unsigned short)(d * MPrj::par_mult);
+    //calkKpKiKd(p, i, d);
+  // kp = kpToShort(p);
+  // ki = kiToShort(i);
+  // kd = kdToShort(d);
     minOut  = _minOut;
     maxOut  = _maxOut;
     buffCmd = MCmd::cmd_pid_reconfigure;                                    // 0x43 Запись
+    vTaskDelay(80 / portTICK_PERIOD_MS);
 }
 
 void MTools::txPidClear()
@@ -540,7 +608,14 @@ void MTools::txGetPidTreaty()
   vTaskDelay(80 / portTICK_PERIOD_MS);
 }
 
-void MTools::txGetPidConfig()                         {buffCmd = MCmd::cmd_pid_read_configure;}       // 0x48 get mode, kP, kI, kD, min, max - возвращает параметры текущего режима регулирования
+void MTools::txGetPidConfig(uint8_t m)          // 0x48 Get (mode) kP, kI, kD по выбору
+{
+  // kp      = (unsigned short) (p * MPrj::par_mult);
+  // ki      = (unsigned short) (i * MPrj::par_mult);
+  // kd      = (unsigned short) (d * MPrj::par_mult);
+
+  buffCmd = MCmd::cmd_pid_read_configure;
+}
 
 // // Ввод параметров PID-регулятора для синхронизации            0x4A (резерв)
 // void MTools::txSetPidTreaty(unsigned short shift, unsigned short bits, unsigned short hz)
@@ -568,7 +643,19 @@ void MTools::txGetPidConfig()                         {buffCmd = MCmd::cmd_pid_r
 //   buffCmd = MCmd::cmd_write_current;              // 0x59
 // }
 
+// 0x4C*
+void MTools::txSetPidChargeShort()
+{
+  buffCmd = MCmd::cmd_pid_set_charge_short;
+  vTaskDelay(80 / portTICK_PERIOD_MS);
+}
 
+// 0x4D*
+void MTools::txSetPidDischargeShort()
+ {
+  buffCmd = MCmd::cmd_pid_set_discharge_short;
+  vTaskDelay(80 / portTICK_PERIOD_MS);
+}
 
 
 
